@@ -1,0 +1,13 @@
+streamlit==1.39.0
+numpy<2.0.0
+Pillow<11.0.0
+scipy
+torch
+torchvision
+opencv-python
+ultralytics
+streamlit-option-menu
+altair
+mediapipe
+facenet-pytorch
+streamlit-drawable-canvas
