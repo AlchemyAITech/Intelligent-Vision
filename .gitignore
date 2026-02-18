@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.env
+
+# Models (Large Files)
+models/
+*.pt
+*.tflite
+*.task
+*.onnx
+*.h5
+*.pb
+
+# Data & Datasets
+data/mnist/
+data/face_bank/Strangers/
+datasets/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# App Outputs & Logs
+runs/
+images/uploads/
+video/uploads/
+.streamlit/
+logs/
+
+# Development
+.gemini/
+.agent/
+brain/
+implementation_plan.md
+task.md
+walkthrough.md
