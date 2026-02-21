@@ -1,0 +1,37 @@
+::1 - - [21/Feb/2026 08:06:09] "GET / HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:06:09] "GET /app.js?v=2026 HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:06:09] "GET /components/SAMLab.js?v=2026 HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:06:09] "GET /components/ColorLab.js?v=2026 HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:06:09] "GET /components/CNNLab.js?v=2026 HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:06:09] "GET /components/ConvolutionLab.js?v=2026 HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:06:09] "GET /components/YOLOLab.js?v=2026 HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:06:09] "GET /components/FaceLab.js?v=2026 HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:06:09] "GET /components/ImageSource.js HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:06:09] code 404, message File not found
+::1 - - [21/Feb/2026 08:06:09] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [21/Feb/2026 08:07:10] "GET / HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:07:10] "GET /app.js?v=2026 HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:07:10] code 404, message File not found
+::1 - - [21/Feb/2026 08:07:10] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+::1 - - [21/Feb/2026 08:07:10] "GET /components/SAMLab.js?v=2026 HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:07:10] "GET /components/ColorLab.js?v=2026 HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:07:10] "GET /components/ConvolutionLab.js?v=2026 HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:07:10] "GET /components/CNNLab.js?v=2026 HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:07:10] "GET /components/FaceLab.js?v=2026 HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:07:10] "GET /components/YOLOLab.js?v=2026 HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:07:10] "GET /components/ImageSource.js HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:07:10] code 404, message File not found
+::1 - - [21/Feb/2026 08:07:10] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [21/Feb/2026 08:07:24] "GET / HTTP/1.1" 304 -
+::1 - - [21/Feb/2026 08:07:24] "GET /app.js?v=2026 HTTP/1.1" 304 -
+::1 - - [21/Feb/2026 08:07:24] "GET /components/ImageSource.js HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:41:49] "GET / HTTP/1.1" 304 -
+::1 - - [21/Feb/2026 08:41:49] "GET /app.js?v=2026 HTTP/1.1" 304 -
+::1 - - [21/Feb/2026 08:41:49] "GET /components/CNNLab.js?v=2026 HTTP/1.1" 304 -
+::1 - - [21/Feb/2026 08:41:50] "GET /components/YOLOLab.js?v=2026 HTTP/1.1" 304 -
+::1 - - [21/Feb/2026 08:41:50] "GET /components/FaceLab.js?v=2026 HTTP/1.1" 304 -
+::1 - - [21/Feb/2026 08:41:50] "GET /components/ImageSource.js HTTP/1.1" 200 -
+::1 - - [21/Feb/2026 08:58:55] code 404, message File not found
+::1 - - [21/Feb/2026 08:58:55] "GET /api/cnn/ws/train HTTP/1.1" 404 -
+::1 - - [21/Feb/2026 08:59:23] code 404, message File not found
+::1 - - [21/Feb/2026 08:59:23] "GET /api/cnn/ws/train HTTP/1.1" 404 -

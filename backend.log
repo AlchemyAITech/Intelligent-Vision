@@ -1,0 +1,48 @@
+INFO:     Will watch for changes in these directories: ['/Users/yxh/workspace/MP项目/北京 - 清华大学/2026通识课/备课/第一节素材/codev2']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [30439] using WatchFiles
+/Users/yxh/workspace/MP项目/北京 - 清华大学/2026通识课/备课/第一节素材/codev2/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+I0000 00:00:1771632370.477795 1311111 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1771632370.478606 1311114 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771632370.479129 1311131 face_landmarker_graph.cc:180] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+I0000 00:00:1771632370.484485 1311131 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771632370.485081 1311133 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771632370.489113 1311144 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1771632370.492552 1311146 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771632370.494413 1311154 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771632370.496271 1311154 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1771632370.497252 1311161 hand_gesture_recognizer_graph.cc:257] Custom gesture classifier is not defined.
+I0000 00:00:1771632370.500563 1311161 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771632370.502392 1311164 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771632370.504442 1311165 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771632370.504665 1311175 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771632370.504698 1311175 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+INFO:     Started server process [30442]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+Initializing SAM 3 model on cpu...
+SAM 3 loaded successfully on CPU.
+FaceManager using device: cpu
+MediaPipe Tasks (Face, Hands, Gestures) initialized.
+FaceManager: Scanning face bank at data/face_bank...
+FaceManager: Loaded 3 faces.
+INFO:     127.0.0.1:58120 - "GET /api/common/local_images HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58383 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58436 - "GET /api/common/local_images HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58531 - "GET /api/common/local_images HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52201 - "GET /api/common/local_images HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56595 - "GET /images/demo.jpg HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:56595 - "POST /api/image/color_space HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56692 - "POST /api/image/color_space HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56732 - "POST /api/image/color_space HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56834 - "GET /api/common/local_images HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56834 - "GET /api/image/kernels HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56836 - "POST /api/image/convolution HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56836 - "POST /api/image/convolution HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56925 - "POST /api/image/convolution HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56960 - "GET /api/cnn/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57344 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57344 - "GET /app.js?v=2026 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:57344 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 Not Found
