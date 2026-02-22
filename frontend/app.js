@@ -1,10 +1,11 @@
-import { createApp, ref, shallowRef, computed } from 'vue';
-import SAMLab from './components/SAMLab.js?v=2026.55';
-import ColorLab from './components/ColorLab.js?v=2026.55';
-import ConvolutionLab from './components/ConvolutionLab.js?v=2026.55';
-import CNNLab from './components/CNNLab.js?v=2026.55';
-import YOLOLab from './components/YOLOLab.js?v=2026.55';
-import FaceLab from './components/FaceLab.js?v=2026.55';
+import { createApp, ref, shallowRef, computed, watch } from 'vue';
+window.Vue = { ref, shallowRef, computed, watch }; // 供组件内部结构取用
+import SAMLab from './components/SAMLab.js?v=2026.111';
+import ColorLab from './components/ColorLab.js?v=2026.111';
+import ConvolutionLab from './components/ConvolutionLab.js?v=2026.111';
+import CNNLab from './components/CNNLab.js?v=2026.111';
+import YOLOLab from './components/YOLOLab.js?v=2026.111';
+import FaceLab from './components/FaceLab.js?v=2026.111';
 
 const app = createApp({
     template: `
@@ -12,9 +13,9 @@ const app = createApp({
         <!-- Sidebar Navigation -->
         <div class="sidebar" :class="{ collapsed: isCollapsed }">
             <div class="sidebar-header">
-                <div v-show="!isCollapsed" style="line-height:1.2;">
-                    <span>智能视界</span><br>
-                    <span style="font-size:0.7em; opacity:0.8;">Intelligent Vision</span>
+                <div v-show="!isCollapsed" style="line-height:1.2; padding-top:10px;">
+                    <span style="color:#82318E; font-size:1.1em; font-weight:800;">智能视界</span><br>
+                    <span style="font-size:0.7em; color:#82318E; font-weight:700;">Intelligent Vision</span>
                 </div>
                 <span v-show="isCollapsed">🔬</span>
             </div>

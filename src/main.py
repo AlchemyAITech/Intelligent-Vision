@@ -39,6 +39,10 @@ if os.path.exists(images_path):
 if os.path.exists(bank_path):
     app.mount("/face_bank", StaticFiles(directory=bank_path), name="face_bank")
 
+uploads_path = os.path.join(os.path.dirname(__file__), "..", "uploads")
+os.makedirs(uploads_path, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=uploads_path), name="uploads")
+
 # Mount frontend at root (html, js, css)
 # html(index.html) is served by root route below, but other assets need to be 
 # accessible at /...

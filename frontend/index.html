@@ -99,6 +99,9 @@
             align-items: center;
             justify-content: center;
             min-height: 80px;
+        }
+
+        .sidebar-header .brand-title {
             background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
             -webkit-background-clip: text;
             background-clip: text;
@@ -182,6 +185,8 @@
 
         /* Main Content */
         .main-content {
+            position: relative;
+            /* 限制绝对定位子元素的上下文边界 */
             flex-grow: 1;
             overflow-y: auto;
             padding: 30px;
@@ -254,6 +259,507 @@
             border: none;
             border-top: 1px solid var(--panel-border);
             margin: 20px 0;
+        }
+
+        /* ================ SAM Lab Unified v2.58 ================ */
+        .sam-lab-unified .module-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .sam-lab-unified h3 {
+            font-size: 14px;
+            font-weight: 800;
+            margin: 0 0 12px 0;
+            color: var(--primary-accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sam-lab-unified .list-container {
+            max-height: 180px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sam-lab-unified .list-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 8px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sam-lab-unified .list-item:hover {
+            background: rgba(0, 0, 0, 0.04);
+            transform: translateY(-1px);
+        }
+
+        .sam-lab-unified .list-item.active {
+            background: white;
+            border-color: var(--primary-accent);
+            box-shadow: 0 2px 8px rgba(162, 28, 175, 0.15);
+        }
+
+        .sam-lab-unified .item-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .sam-lab-unified .color-picker-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .sam-lab-unified .inline-edit-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 2px 4px;
+            color: var(--text-main);
+        }
+
+        .sam-lab-unified .inline-edit-input:focus {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .sam-lab-unified .item-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0.3;
+            transition: opacity 0.2s;
+        }
+
+        .sam-lab-unified .list-item:hover .item-actions {
+            opacity: 1;
+        }
+
+        .sam-lab-unified .icon-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 1px solid var(--primary-accent);
+            background: white;
+            color: var(--primary-accent);
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        /* ------------------------------------------------------------------
+           全屏悬浮架构 (v2026.63)
+           ------------------------------------------------------------------ */
+        .sam-lab-unified.fullscreen-mode {
+            position: absolute;
+            /* 使用绝对定位 0 正好覆盖完被 padding 撑开的主视图边框 */
+            top: 0;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            overflow: hidden;
+            background: #fdfdfd;
+            z-index: 10;
+            /* 改用 Flex 方式实现底部画布自适应跟随上面栏目的布局 */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 底层级: 核心视口自动跟随弹窗 */
+        .fullscreen-mode .workspace-viewport {
+            position: relative;
+            order: 2;
+            /* 排在控制栏正下方 */
+            flex: 1;
+            /* 自动填满所有剩余伸展高度 */
+            z-index: 1;
+            cursor: grab;
+            background: #e0e0e0;
+            background-image: linear-gradient(45deg, #cfcfcf 25%, transparent 25%, transparent 75%, #cfcfcf 75%, #cfcfcf),
+                linear-gradient(45deg, #cfcfcf 25%, transparent 25%, transparent 75%, #cfcfcf 75%, #cfcfcf);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            overflow: hidden;
+        }
+
+        .fullscreen-mode .workspace-viewport:active {
+            cursor: grabbing;
+        }
+
+        /* 图层叠加结构：修复多张图片并列显示及居中顶格问题 */
+        .canvas-stage {
+            transform-origin: 0 0;
+            transition: transform 0.05s linear;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+        }
+
+        .canvas-container {
+            position: relative;
+            display: inline-block;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            line-height: 0;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .canvas-container .base-img {
+            display: block;
+            border-radius: 0;
+            cursor: crosshair;
+            opacity: 1 !important;
+            /* 强制覆盖可能的隐式透明滤镜 */
+            filter: none !important;
+            max-width: none !important;
+            max-height: 90vh !important;
+            /* 顶格逻辑 */
+        }
+
+        .canvas-container .overlay-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .canvas-container .interactive {
+            pointer-events: auto;
+            /* 保留交互层的事件捕捉 */
+        }
+
+        /* 顶部悬浮控制栏 */
+        .top-floating-bar {
+            position: relative;
+            order: 1;
+            /* 正统文档流排列最上 */
+            margin: 15px auto;
+            /* 自主居中 */
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            padding: 10px 40px;
+            border-radius: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .app-title {
+            margin: 0;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+
+        .tab-pill-group {
+            display: flex;
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 30px;
+            padding: 4px;
+        }
+
+        .tab-pill {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-pill.active {
+            background: white;
+            color: #82318E;
+            /* 紫荆花颜色 */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 左侧功能悬浮区，须拥有绝对控制权 */
+        .left-floating-panel {
+            position: absolute;
+            left: 20px;
+            top: 100px;
+            bottom: 20px;
+            width: 330px;
+            z-index: 50;
+            /* 提供高层级悬浮权抵御蒙版化 */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            pointer-events: none;
+        }
+
+        /* 使能面板内的交互 */
+        .left-floating-panel>* {
+            pointer-events: auto;
+        }
+
+        /* 毛玻璃悬浮卡片 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-header h4 {
+            margin: 0;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .scrollable-card {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 紧凑列表样式 */
+        .list-container.compact {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .list-container.compact::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .list-container.compact::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.5);
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            justify-content: space-between;
+        }
+
+        /* 底部正中操作空间 */
+        .bottom-action-bar {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            /* 完全居中 */
+            transform: translateX(-50%);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            pointer-events: none;
+        }
+
+        .bottom-action-bar>* {
+            pointer-events: auto;
+        }
+
+        .interaction-hint-bar {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            z-index: 100;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .item-info {
+            flex: 1;
+            /* 占满剩余空间 */
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 5px;
+            margin-left: auto;
+            /* 保证被推到最右 */
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+        }
+
+        .action-btn.delete {
+            margin-left: auto;
+            /* 对于没有 item-actions 包裹的独立按钮也推到最右 */
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .floating-action-btn {
+            height: 50px;
+            padding: 0 35px;
+            border-radius: 25px;
+            font-weight: 800;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .floating-action-btn:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .floating-action-btn.primary {
+            background: var(--primary-accent);
+            color: white;
+        }
+
+        .floating-action-btn.secondary {
+            background: white;
+            color: #555;
+        }
+
+        /* 特殊右下角悬浮 */
+        .zoom-indicator.floating {
+            position: absolute;
+            right: 30px;
+            bottom: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            z-index: 5;
+        }
+
+        /* 识别面板展示内容 */
+        .recog-content {
+            background: rgba(162, 28, 175, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px dashed rgba(162, 28, 175, 0.2);
+            text-align: center;
+        }
+
+        .recog-label {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary-accent);
+            margin-bottom: 5px;
+        }
+
+        .recog-score {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .sam-lab-unified .zoom-indicator {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: monospace;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* 弹窗样式 */
+        .sam-lab-unified .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+        }
+
+        .sam-lab-unified .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 700px;
+            max-width: 95vw;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            padding-bottom: 20px;
+        }
+
+        .sam-lab-unified .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         /* Controls */
@@ -488,6 +994,13 @@
             font-weight: bold;
         }
 
+        .item-info {
+            flex-grow: 1;
+            margin: 0 10px;
+            display: flex;
+            align-items: center;
+        }
+
         .prob-row .bar-bg {
             flex-grow: 1;
             height: 14px;
@@ -607,7 +1120,14 @@
             const overlay = document.getElementById('global-error-overlay');
             if (overlay) {
                 overlay.style.display = 'block';
-                overlay.textContent = '🔥 [异步异常拦截] ' + event.reason;
+                overlay.style.height = 'auto';
+                overlay.style.whiteSpace = 'pre-wrap';
+                overlay.style.fontSize = '12px';
+                overlay.style.padding = '10px';
+                overlay.style.textAlign = 'left';
+                const err = event.reason;
+                const msg = (err && err.stack) ? err.stack : String(err);
+                overlay.textContent = '🔥 [异步异常拦截] \n' + msg;
             }
             console.error(event.reason);
         });
@@ -627,8 +1147,8 @@
         }
     </script>
 
-    <!-- Main Vue App Application -->
-    <script type="module" src="./app.js?v=2026.55"></script>
+    <!-- 应用逻辑 -->
+    <script type="module" src="./app.js?v=2026.112"></script>
 </body>
 
 </html>

@@ -1,48 +1,140 @@
+=========================================
+  Intelligent Vision Labs - 启动脚本
+=========================================
+>> 发现本地 .venv 环境，准备挂载...
+>> 检查 FastAPI 等 Web 依赖...
+WARNING: You are using pip version 21.2.4; however, version 26.0.1 is available.
+You should consider upgrading via the '/Users/yxh/workspace/MP项目/北京 - 清华大学/2026通识课/备课/第一节素材/codev2/.venv/bin/python -m pip install --upgrade pip' command.
+>> 正在启动 FastAPI 后端服务...
+>> (如由于端口冲突导致失败，请手动结束占用 8000 端口的进程)
+>> 应用将在 http://localhost:8000 运行
+=========================================
 INFO:     Will watch for changes in these directories: ['/Users/yxh/workspace/MP项目/北京 - 清华大学/2026通识课/备课/第一节素材/codev2']
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [30439] using WatchFiles
+INFO:     Started reloader process [73962] using WatchFiles
+[0m[32mINFO 2026-02-22 18:48:11,732 73964 sam3_video_base.py: 125:[0m setting max_num_objects=10000 and num_obj_for_compile=16
 /Users/yxh/workspace/MP项目/北京 - 清华大学/2026通识课/备课/第一节素材/codev2/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
   warnings.warn(
-I0000 00:00:1771632370.477795 1311111 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+I0000 00:00:1771757293.601355 1706322 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
 INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
-W0000 00:00:1771632370.478606 1311114 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
-W0000 00:00:1771632370.479129 1311131 face_landmarker_graph.cc:180] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
-I0000 00:00:1771632370.484485 1311131 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
-W0000 00:00:1771632370.485081 1311133 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
-W0000 00:00:1771632370.489113 1311144 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
-I0000 00:00:1771632370.492552 1311146 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
-W0000 00:00:1771632370.494413 1311154 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
-W0000 00:00:1771632370.496271 1311154 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
-I0000 00:00:1771632370.497252 1311161 hand_gesture_recognizer_graph.cc:257] Custom gesture classifier is not defined.
-I0000 00:00:1771632370.500563 1311161 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
-W0000 00:00:1771632370.502392 1311164 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
-W0000 00:00:1771632370.504442 1311165 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
-W0000 00:00:1771632370.504665 1311175 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
-W0000 00:00:1771632370.504698 1311175 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
-INFO:     Started server process [30442]
+W0000 00:00:1771757293.602144 1706323 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757293.602735 1706338 face_landmarker_graph.cc:180] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+I0000 00:00:1771757293.607283 1706338 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771757293.607953 1706343 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757293.612120 1706352 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1771757293.615806 1706353 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771757293.617760 1706360 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757293.620139 1706356 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1771757293.621351 1706368 hand_gesture_recognizer_graph.cc:257] Custom gesture classifier is not defined.
+I0000 00:00:1771757293.623863 1706368 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771757293.625650 1706370 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757293.627735 1706370 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757293.627965 1706380 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757293.627999 1706380 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+INFO:     Started server process [73964]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-Initializing SAM 3 model on cpu...
-SAM 3 loaded successfully on CPU.
-FaceManager using device: cpu
-MediaPipe Tasks (Face, Hands, Gestures) initialized.
-FaceManager: Scanning face bank at data/face_bank...
-FaceManager: Loaded 3 faces.
-INFO:     127.0.0.1:58120 - "GET /api/common/local_images HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58383 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:58436 - "GET /api/common/local_images HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58531 - "GET /api/common/local_images HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52201 - "GET /api/common/local_images HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56595 - "GET /images/demo.jpg HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:56595 - "POST /api/image/color_space HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56692 - "POST /api/image/color_space HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56732 - "POST /api/image/color_space HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56834 - "GET /api/common/local_images HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56834 - "GET /api/image/kernels HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56836 - "POST /api/image/convolution HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56836 - "POST /api/image/convolution HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56925 - "POST /api/image/convolution HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56960 - "GET /api/cnn/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57344 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57344 - "GET /app.js?v=2026 HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:57344 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 Not Found
+WARNING:  WatchFiles detected changes in 'src/routers/sam.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [73964]
+[0m[32mINFO 2026-02-22 18:50:50,233 74138 sam3_video_base.py: 125:[0m setting max_num_objects=10000 and num_obj_for_compile=16
+/Users/yxh/workspace/MP项目/北京 - 清华大学/2026通识课/备课/第一节素材/codev2/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+I0000 00:00:1771757451.862674 1708016 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1771757451.863409 1708018 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757451.863930 1708031 face_landmarker_graph.cc:180] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+I0000 00:00:1771757451.866612 1708031 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771757451.867129 1708034 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757451.870848 1708034 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1771757451.876571 1708046 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771757451.878248 1708049 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757451.880129 1708049 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1771757451.881043 1708061 hand_gesture_recognizer_graph.cc:257] Custom gesture classifier is not defined.
+I0000 00:00:1771757451.883595 1708061 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771757451.885302 1708064 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757451.887154 1708065 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757451.887420 1708063 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757451.887451 1708063 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+INFO:     Started server process [74138]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/routers/sam.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [74138]
+[0m[32mINFO 2026-02-22 18:51:45,050 74153 sam3_video_base.py: 125:[0m setting max_num_objects=10000 and num_obj_for_compile=16
+/Users/yxh/workspace/MP项目/北京 - 清华大学/2026通识课/备课/第一节素材/codev2/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+I0000 00:00:1771757506.732892 1708749 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1771757506.733718 1708752 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757506.734244 1708764 face_landmarker_graph.cc:180] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+I0000 00:00:1771757506.736686 1708764 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771757506.737202 1708766 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757506.740943 1708778 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1771757506.744993 1708779 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771757506.746761 1708781 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757506.748663 1708781 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1771757506.749707 1708794 hand_gesture_recognizer_graph.cc:257] Custom gesture classifier is not defined.
+I0000 00:00:1771757506.752407 1708794 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771757506.754373 1708796 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757506.756313 1708800 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757506.756546 1708804 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757506.756579 1708804 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+INFO:     Started server process [74153]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'scripts/test_propagate.py', 'scripts/verify_notebook_logic.py', 'yolo_video_test.py', 'scripts/yolo_video_seg_track.py', 'auto_test.py', 'test_propagate.py', 'verify_notebook_logic.py', 'yolo_video_seg_track.py', 'scripts/yolo_video_test.py', 'scripts/auto_test.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [74153]
+WARNING:  WatchFiles detected changes in 'SAM2/src/sam2/modeling/backbones/__init__.py', 'SAM2/src/sam2/modeling/backbones/hieradet.py', 'SAM2/src/segment_anything/predictor.py', 'SAM2/src/segment_anything/utils/__init__.py', 'SAM2/src/segment_anything/modeling/sam.py', 'SAM2/src/sam2/modeling/sam/transformer.py', 'SAM2/src/sam2/modeling/memory_encoder.py', 'SAM2/src/sam2/modeling/sam/__init__.py', 'SAM2/src/segment_anything/utils/transforms.py', 'SAM2/src/sam2/modeling/backbones/image_encoder.py', 'SAM2/src/segment_anything/utils/onnx.py', 'SAM2/src/segment_anything/modeling/image_encoder.py', 'SAM2/demo_sam2_onnx.py', 'SAM2/src/segment_anything/utils/amg.py', 'SAM2/src/sam2/modeling/backbones/utils.py', 'SAM2/src/sam2/utils/amg.py', 'SAM2/src/sam2/modeling/sam/prompt_encoder.py', 'SAM2/src/sam2/sam2_image_predictor.py', 'SAM2/src/segment_anything/modeling/mask_decoder.py', 'SAM2/src/utils.py', 'SAM2/src/segment_anything/modeling/transformer.py', 'SAM2/src/segment_anything/__init__.py', 'SAM2/src/sam2/automatic_mask_generator.py', 'SAM2/src/segment_anything/modeling/__init__.py', 'SAM2/src/sam2/modeling/sam2_base.py', 'SAM2/src/sam2/__init__.py', 'SAM2/src/forward.py', 'SAM2/src/sam2/sam2_predictor_all.py', 'SAM2/src/sam2/sam2_predictor_single.py', 'SAM2/demo.py', 'SAM2/src/sam2/modeling/sam/mask_decoder.py', 'SAM2/src/export_sam2_onnx.py', 'SAM2/src/sam2/utils/misc.py', 'SAM2/src/segment_anything/build_sam.py', 'SAM2/src/sam2/modeling/memory_attention.py', 'SAM2/src/sam2/modeling/__init__.py', 'SAM2/src/segment_anything/modeling/common.py', 'SAM2/src/sam2/sam2_video_predictor.py', 'SAM2/src/sam2/utils/__init__.py', 'SAM2/__init__.py', 'SAM2/src/sam2/build_sam.py', 'SAM2/src/segment_anything/modeling/prompt_encoder.py', 'SAM2/src/sam2_configs/__init__.py', 'SAM2/src/sam2/utils/transforms.py', 'SAM2/src/sam2/modeling/position_encoding.py', 'SAM2/src/sam2/modeling/sam2_utils.py', 'SAM2/src/segment_anything/automatic_mask_generator.py'. Reloading...
+[0m[32mINFO 2026-02-22 18:55:06,711 74575 sam3_video_base.py: 125:[0m setting max_num_objects=10000 and num_obj_for_compile=16
+/Users/yxh/workspace/MP项目/北京 - 清华大学/2026通识课/备课/第一节素材/codev2/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+I0000 00:00:1771757708.380510 1712247 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1771757708.381205 1712250 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757708.381697 1712265 face_landmarker_graph.cc:180] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+I0000 00:00:1771757708.383909 1712265 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771757708.384445 1712268 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757708.388800 1712277 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1771757708.392457 1712280 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771757708.394241 1712282 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757708.396221 1712283 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1771757708.397193 1712296 hand_gesture_recognizer_graph.cc:257] Custom gesture classifier is not defined.
+I0000 00:00:1771757708.400425 1712296 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771757708.402246 1712299 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757708.404192 1712299 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757708.404490 1712309 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757708.404526 1712309 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+INFO:     Started server process [74575]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+[0m[32mINFO 2026-02-22 18:55:16,029 74868 sam3_video_base.py: 125:[0m setting max_num_objects=10000 and num_obj_for_compile=16
+/Users/yxh/workspace/MP项目/北京 - 清华大学/2026通识课/备课/第一节素材/codev2/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+I0000 00:00:1771757717.725988 1712491 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1771757717.726737 1712493 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757717.727229 1712507 face_landmarker_graph.cc:180] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+I0000 00:00:1771757717.729732 1712507 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771757717.730247 1712509 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757717.734257 1712509 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1771757717.737646 1712522 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771757717.739360 1712524 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757717.741258 1712536 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1771757717.742211 1712537 hand_gesture_recognizer_graph.cc:257] Custom gesture classifier is not defined.
+I0000 00:00:1771757717.748137 1712537 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 90.5), renderer: Apple M4 Pro
+W0000 00:00:1771757717.749895 1712539 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757717.751830 1712539 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757717.752048 1712550 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1771757717.752085 1712550 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+INFO:     Started server process [74868]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
