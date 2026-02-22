@@ -37,3 +37,8 @@ brain/
 implementation_plan.md
 task.md
 walkthrough.md
+
+# Video Media
+*.mp4
+*.mov
+*.avi
