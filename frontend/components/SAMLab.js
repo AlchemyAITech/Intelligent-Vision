@@ -74,7 +74,11 @@ export default {
         </div>
 
         <!-- 左侧功能悬浮区 (Z-Index: 1000) -->
-        <div class="left-floating-panel" style="z-index: 1000;">
+        <div class="left-floating-panel" style="z-index: 1000;" :class="{'collapsed': !isLeftPanelExpanded}">
+            
+            <button class="toggle-panel-btn left-toggle" @click="isLeftPanelExpanded = !isLeftPanelExpanded" :title="isLeftPanelExpanded ? '收起左侧面板' : '展开左侧面板'">
+                {{ isLeftPanelExpanded ? '◀' : '▶' }}
+            </button>
             <!-- (2) 图像/视频加载 -->
             <div class="glass-card">
                 <button class="btn-primary full-btn" @click="showUploadModal = true">
@@ -117,30 +121,7 @@ export default {
                 </div>
             </div>
 
-            <!-- (4) 标注与提示信息列表 (全模式共享) -->
-            <div class="glass-card scrollable-card" style="flex:1; max-height: 300px;" v-if="['labeling', 'tracking', 'recognition'].includes(subTab)">
-                <div class="card-header">
-                    <h4>📝 目标列表</h4>
-                </div>
-                <div class="list-container compact">
-                    <div v-for="ann in annotations" :key="ann.id" 
-                         class="list-item ann-item"
-                         @mouseenter="hoveredAnnId = ann.id"
-                         @mouseleave="hoveredAnnId = null">
-                        <div class="item-color" :style="{ background: getTagColor(ann.tagId) }"></div>
-                        <div class="item-info">
-                            <div class="ann-name" style="font-size: 13px;">{{ getTagName(ann.tagId) }}</div>
-                        </div>
-                        <button class="action-btn delete" @click.stop="deleteAnnotation(ann.id)">🗑️</button>
-                    </div>
-                    <div v-if="annotations.length === 0" class="empty-hint mini">尚未添加特征点/框</div>
-                </div>
 
-                <!-- 底部操作提示 (贴合列表底部) -->
-                <div style="margin-top: auto; padding: 8px 10px; background: rgba(0,0,0,0.03); border-top: 1px solid rgba(0,0,0,0.05); font-size: 10px; color: #777; line-height: 1.4; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
-                    左键正类锚点；右键负类锚点；拖拽画框；按住空格平移
-                </div>
-            </div>
 
             <!-- 识别结果展示及文字提示 -->
             <div class="glass-card recognition-result-card" v-if="subTab === 'recognition'">
@@ -155,27 +136,26 @@ export default {
                                placeholder="对象名称..." 
                                style="flex: 1; min-width: 0; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--panel-border); font-size: 13px; outline: none; background: rgba(255,255,255,0.7);"/>
                         <button class="floating-action-btn primary" style="padding: 0 12px; border-radius: 6px; font-size: 13px;" @click="handleTextPromptSubmit">识别</button>
-                        <button class="floating-action-btn" style="padding: 0 12px; border-radius: 6px; font-size: 13px; background: #10B981; color: white;" @click="saveCurrentAnnotation" :disabled="!lastGeneratedMask">确认存入所有目标</button>
-                    </div>
-                    
-                    <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 2px;">
-                        <span>多目标文本检出灵敏度: {{ textThreshold }}</span>
-                        <input type="range" v-model="textThreshold" min="0.1" max="0.9" step="0.05" @change="handleTextPromptSubmit" style="width: 80px; accent-color: var(--primary-color);">
                     </div>
                     
                     <!-- 分割同类按钮：完全只依赖“目标列表”中已封入的掩码先验 -->
-                    <div style="border-top: 1px dashed var(--panel-border); padding-top: 10px; margin-top: 5px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
-                            <span>灵敏度阈值 (筛选同类用): {{ similarityThreshold }}</span>
-                            <input type="range" v-model="similarityThreshold" min="0.1" max="0.9" step="0.05" style="width: 100px; accent-color: var(--primary-color);">
-                        </div>
-                        <button class="floating-action-btn secondary" @click="requestSimilarSeg" style="width:100%;" :disabled="annotations.length === 0">
-                            ✨ 一键分割同类目标 (需列表有目标)
+                    <div style="border-top: 1px dashed var(--panel-border); padding-top: 10px; margin-top: 5px; display: flex; justify-content: center;">
+                        <button class="floating-action-btn secondary" @click="requestSimilarSeg" style="width: 80%;" :disabled="annotations.length === 0">
+                            ✨ 一键分割
                         </button>
                     </div>
+
+                    <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 10px;">
+                        <span style="flex-shrink: 0;">置信度阈值: {{ confidenceThreshold }}</span>
+                        <input type="range" v-model="confidenceThreshold" max="1" min="0" step="0.2" @change="handleThresholdChange" style="flex: 1; margin: 0 8px; accent-color: var(--primary-color);">
+                    </div>
                     
-                    <div style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 5px;">
-                        上方的提取将仅仅依托上方 "目标列表" 中的记录
+                    <!-- 全部的全局过滤参数 -->
+                    <div style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 10px; margin-top: 5px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #EAB308;">
+                            <span>⚠️ 排他 IOU 过滤阈值: {{ iouThreshold }}</span>
+                            <input type="range" v-model="iouThreshold" min="0" max="1" step="0.2" @change="applyIouFilter" style="width: 100px; accent-color: #EAB308;">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -196,9 +176,76 @@ export default {
                 </div>
             </div>
             
-            <!-- (新增) 视频追踪结果列表 -->
-            <div class="glass-card recognition-result-card" v-if="subTab === 'tracking'" style="flex:1; max-height: 250px; overflow-y: auto; margin-top: 10px;">
-                <div class="card-header"><h4>📜 后台跟踪任务列</h4></div>
+        </div>
+        
+        <!-- 右侧数据全景大屏 (Z-Index: 1000) -->
+        <div class="right-floating-panel" style="z-index: 1000;" :class="{'collapsed': !isRightPanelExpanded}">
+        
+            <button class="toggle-panel-btn right-toggle" @click="isRightPanelExpanded = !isRightPanelExpanded" :title="isRightPanelExpanded ? '收起右侧数据大屏' : '展开右侧数据大屏'">
+                {{ isRightPanelExpanded ? '▶' : '◀' }}
+            </button>
+            <!-- 标注与提示信息列表 (全模式共享) -->
+            <div class="glass-card scrollable-card" style="flex:1; max-height: 300px;" v-if="['labeling', 'tracking', 'recognition'].includes(subTab)">
+                <div class="card-header">
+                    <h4>📝 目标列表</h4>
+                </div>
+                <div class="list-container compact">
+                    <div v-for="ann in annotations" :key="ann.id" 
+                         class="list-item ann-item"
+                         @mouseenter="hoveredAnnId = ann.id"
+                         @mouseleave="hoveredAnnId = null">
+                        <div class="item-color" :style="{ background: getTagColor(ann.tagId) }"></div>
+                        <div class="item-info">
+                            <div class="ann-name" style="font-size: 13px;">{{ getTagName(ann.tagId) }}</div>
+                        </div>
+                        <button class="action-btn delete" @click.stop="deleteAnnotation(ann.id)">🗑️</button>
+                    </div>
+                    <div v-if="annotations.length === 0" class="empty-hint mini">尚未存入任何已确立目标</div>
+                </div>
+                 <!-- 底部操作提示 (贴合列表底部) -->
+                <div style="margin-top: auto; padding: 8px 10px; background: rgba(0,0,0,0.03); border-top: 1px solid rgba(0,0,0,0.05); font-size: 10px; color: #777; line-height: 1.4; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                    画布左键正类；右键负类；拖拽画框；长按空格平移
+                </div>
+            </div>
+
+            <!-- 待确认掩码池 (Pending List) -->
+            <div class="glass-card scrollable-card" style="flex:1; max-height: 250px;" v-if="lastMultiMasksB64 && lastMultiMasksB64.length > 0">
+                <div class="card-header" style="justify-content: space-between; align-items: center; display: flex;">
+                    <h4>⏳ 待确认列表 ({{ lastMultiMasksB64.length }})</h4>
+                    <div style="display: flex; gap: 4px;">
+                        <button class="small-btn primary" style="background:#10B981; border-color:#059669;" @click="confirmMultiTargets()" title="一键将下方所有项转为确立目标">一键确认</button>
+                        <button class="small-btn" style="background:#ef4444; color:white; border:none;" @click="clearPending" title="立刻清空所有的残影">清空</button>
+                    </div>
+                </div>
+                <div class="list-container compact">
+                    <div v-for="(item, idx) in lastMultiMasksB64" :key="idx" 
+                         class="list-item ann-item"
+                         :class="{ 'hovered-item': hoveredPendingIdx === idx }"
+                         @mouseover="hoveredPendingIdx = idx"
+                         @mouseleave="hoveredPendingIdx = null"
+                         style="flex-direction: column; align-items: stretch; gap: 4px; position: relative;"
+                         :style="{ borderLeft: '3px solid ' + getTagColor(selectedTagId) }">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div class="ann-name" style="font-size: 12px; color: #333; font-weight: bold;">{{ getTagName(selectedTagId) }} (残影 #{{ idx + 1 }})</div>
+                            <div style="display: flex; gap: 4px;">
+                                <button class="action-btn" style="background:#10B981; color:white; padding: 2px 6px; border-radius: 4px; font-size: 11px;" @click.stop="confirmSingleTarget(idx)">确认</button>
+                                <button class="action-btn" style="background:#ef4444; color:white; padding: 2px 6px; border-radius: 4px; font-size: 11px;" @click.stop="cancelSingleTarget(idx)">取消</button>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; font-size: 10px; color: var(--text-muted); background: rgba(255,255,255,0.4); padding: 3px 6px; border-radius: 4px;">
+                            <span>置信得分:<b style="color:#059669;">{{ (item.score * 100).toFixed(1) }}%</b></span>
+                            <span v-if="item.iou !== undefined">碰撞 IOU:<b style="color:#DC2626;">{{ (item.iou * 100).toFixed(1) }}%</b></span>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: auto; padding: 6px 10px; background: rgba(234,179,8,0.1); border-top: 1px dashed rgba(234,179,8,0.3); font-size: 10px; color: #B45309; line-height: 1.4; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                    调节左侧的置信度和IOU滑块可实时剔除劣质或重叠的残影。
+                </div>
+            </div>
+
+            <!-- 视频追踪结果列表 -->
+            <div class="glass-card recognition-result-card" v-if="subTab === 'tracking'" style="flex:1; max-height: 250px; overflow-y: auto;">
+                <div class="card-header"><h4>📜 后台跟踪队列</h4></div>
                 <div class="list-container compact" style="margin-top: 10px;">
                     <div v-for="task in trackingTasks" :key="task.session_id" class="list-item" style="flex-direction: column; align-items: stretch; gap: 5px; padding: 10px; background: rgba(255,255,255,0.6); border: 1px solid rgba(0,0,0,0.05);">
                         <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
@@ -225,7 +272,6 @@ export default {
                     <div v-if="trackingTasks.length === 0" class="empty-hint mini">暂无历史跟踪记录</div>
                 </div>
             </div>
-            
         </div>
 
         <!-- 新增追踪结果大屏弹窗 (Modal) -->
@@ -288,6 +334,8 @@ export default {
         const canvasRef = ref(null); // Consolidated canvas ref
 
         // --- UI 状态 ---
+        const isLeftPanelExpanded = ref(true);
+        const isRightPanelExpanded = ref(true);
         const showUploadModal = ref(false);
         const subTab = ref('labeling');
         const imageUrl = ref('');
@@ -307,11 +355,14 @@ export default {
         const isCreatingTag = ref(false);
         const newTagName = ref('');
         const newTagColor = ref('#A21CAF');
-        const similarityThreshold = ref(0.2); // 一键同类的宽松拦截网
-        const textThreshold = ref(0.4); // 文本找目标的专用阈值
+        const confidenceThreshold = ref(0.4); // 统一的置信度大闸门
+        const iouThreshold = ref(0.4); // 用于过滤多目标生成时过于重叠的碎片
 
         const annotations = ref([]); // { id, tagId, maskB64 }
         const hoveredAnnId = ref(null); // 上下文交互：当前鼠标所悬浮查看的标注 ID
+        const hoveredPendingIdx = ref(null); // 上下文交互：目前正在鼠标悬浮看哪个残影项
+
+        let flashAnimationId = null; // 控制闪烁动画帧的全局指针
 
         watch(subTab, (newTab, oldTab) => {
             if (newTab !== oldTab) {
@@ -322,9 +373,28 @@ export default {
                 statusMessage.value = '等待图片/视频加载...';
                 isLoading.value = false;
                 annotations.value = [];
+                maskDataCache.clear();
                 textPrompt.value = '';
                 recognitionResult.value = null;
                 resetCurrentSession();
+
+                if (flashAnimationId) {
+                    cancelAnimationFrame(flashAnimationId);
+                    flashAnimationId = null;
+                }
+            }
+        });
+
+        // 【新增 6】：切换图片/视频后清空标注，确保新任务不携带旧残余
+        watch([imageUrl, videoUrl], () => {
+            if (imageUrl.value || videoUrl.value) {
+                console.log("Detecting source change, clearing annotations and cache...");
+                annotations.value = [];
+                maskDataCache.clear();
+                lastGeneratedMask.value = '';
+                rawMultiMasksB64.value = [];
+                lastMultiMasksB64.value = [];
+                textPrompt.value = '';
             }
         });
 
@@ -333,12 +403,22 @@ export default {
             redrawAllMasks();
         });
 
+        watch(hoveredPendingIdx, (newVal) => {
+            // 清理旧帧
+            if (flashAnimationId !== null) {
+                cancelAnimationFrame(flashAnimationId);
+                flashAnimationId = null;
+            }
+            // 触发一次重绘即可。如果 newVal !== null，内部的 performDraw(拿到缓存好图片的闭包) 会自动接管帧循环
+            redrawAllMasks();
+        });
         // --- 交互数据 ---
         const points = ref([]);
         const currentBox = ref(null);
         const dragBox = ref(null);
         const lastGeneratedMask = ref(null);
-        const lastMultiMasksB64 = ref([]); // 专用于解构后的多目标独立遮罩，使得确认按钮可以分而治之
+        const rawMultiMasksB64 = ref([]); // 来自后端未被 IOU 过滤的原始多目标遮罩合集
+        const lastMultiMasksB64 = ref([]); // 经过 IOU 过滤后，专门用于渲染确认发车的遮罩合集
         const recognitionResult = ref(null); // { label, score }
         const textPrompt = ref(""); // 新增 textPrompt
         const currentFrameIdx = ref(0); // 记录当前视频播放帧
@@ -408,18 +488,132 @@ export default {
         const getTagColor = (tagId) => tags.value.find(t => t.id === tagId)?.color || '#999';
         const getTagName = (tagId) => tags.value.find(t => t.id === tagId)?.name || '未知';
 
-        // --- 标注管理逻辑 ---
-        const saveCurrentAnnotation = () => {
-            if (!lastGeneratedMask.value || !selectedTagId.value) return;
+        const maskDataCache = new Map(); // 用于存储已保存标注的 ImageData 缓存
 
-            // 是否存在拆分后的多目标？（通常由带有效文本的预测，或者是同类分割返回）
+        const b64ToCanvas = (base64) => {
+            if (!base64) return Promise.resolve(null);
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const can = document.createElement('canvas');
+                    can.width = img.width;
+                    can.height = img.height;
+                    const ctx = can.getContext('2d', { willReadFrequently: true });
+                    ctx.drawImage(img, 0, 0);
+                    resolve(ctx.getImageData(0, 0, img.width, img.height).data);
+                };
+                img.onerror = () => {
+                    console.error("Failed to load mask image for IOU calculation.");
+                    resolve(null);
+                };
+                // 兼容性检查：如果 base64 已经包含了 data: 协议头，则不需要重复叠加
+                if (base64.startsWith('data:')) {
+                    img.src = base64;
+                } else {
+                    img.src = "data:image/png;base64," + base64;
+                }
+            });
+        };
+
+        const calcIOU = (dataA, dataB) => {
+            if (!dataA || !dataB) return 0;
+            if (dataA.length !== dataB.length) {
+                console.warn("IOU Dimension Mismatch:", dataA.length, dataB.length);
+                // 兜底：如果尺寸不匹配，说明跨图片了，IOU 理论上就是 0
+                return 0;
+            }
+            let intersection = 0;
+            let union = 0;
+            // 每4个元素为一个像素 (r,g,b,a)，仅看alpha
+            for (let i = 3; i < dataA.length; i += 4) {
+                const aFilled = dataA[i] > 10; // 稍微抬高阈值规避杂色
+                const bFilled = dataB[i] > 10;
+                if (aFilled && bFilled) intersection++;
+                if (aFilled || bFilled) union++;
+            }
+            const iou = union === 0 ? 0 : intersection / union;
+            console.log("Calculated IOU:", iou, "Intersection:", intersection, "Union:", union);
+            return iou;
+        };
+
+        const applyIouFilter = async () => {
+            if (!rawMultiMasksB64.value || rawMultiMasksB64.value.length === 0) {
+                lastMultiMasksB64.value = [];
+                drawCurrentMask();
+                return;
+            }
+
+            // 第一层清洗：置信分大闸 (直接过滤 score 低于 confidenceThreshold 的残片)
+            const confidencePassed = rawMultiMasksB64.value.filter(
+                cand => cand.score >= parseFloat(confidenceThreshold.value)
+            );
+
+            if (annotations.value.length === 0) {
+                // 如果没有已存在的实体，无需计算 IOU，只需记录 score 即可展示
+                lastMultiMasksB64.value = confidencePassed.map(c => ({ ...c, iou: 0 }));
+            } else {
+                statusMessage.value = '正在运算像素级重叠及置信联排...';
+                const existDatas = [];
+                for (const a of annotations.value) {
+                    // 优先从缓存读取
+                    if (maskDataCache.has(a.id)) {
+                        existDatas.push(maskDataCache.get(a.id));
+                        continue;
+                    }
+                    const data = await b64ToCanvas(a.maskB64);
+                    if (data) {
+                        maskDataCache.set(a.id, data);
+                        existDatas.push(data);
+                    }
+                }
+
+                const accepted = [];
+                for (const candidate of confidencePassed) {
+                    // candidate.mask_base64 此时不应进缓存，它是瞬时的
+                    const candidateData = await b64ToCanvas(candidate.mask_base64);
+                    if (!candidateData) {
+                        // 如果候选图加载失败，我们还是保守地允许它预览，但 iou 计为 0
+                        accepted.push({ ...candidate, iou: 0 });
+                        continue;
+                    }
+
+                    let maxIOU = 0;
+                    for (const existData of existDatas) {
+                        const iou = calcIOU(candidateData, existData);
+                        if (iou > maxIOU) maxIOU = iou;
+                    }
+
+                    if (maxIOU <= parseFloat(iouThreshold.value)) {
+                        accepted.push({
+                            ...candidate,
+                            iou: maxIOU
+                        });
+                    }
+                }
+                lastMultiMasksB64.value = accepted;
+
+                const dropCount = confidencePassed.length - accepted.length;
+                if (dropCount > 0) {
+                    statusMessage.value = `生成完毕。IOU 阈值排他过滤已自动拦截 ${dropCount} 个与已有目标高度重叠的重复残影。`;
+                } else {
+                    statusMessage.value = '特征已生成并进入待确认列表。';
+                }
+            }
+            drawCurrentMask();
+        };
+
+        const handleThresholdChange = () => {
+            applyIouFilter();
+        };
+
+        const confirmMultiTargets = () => {
             if (lastMultiMasksB64.value && lastMultiMasksB64.value.length > 0) {
-                lastMultiMasksB64.value.forEach((b64, idx) => {
+                lastMultiMasksB64.value.forEach((item, idx) => {
                     const objId = annotations.value.length + 1;
                     annotations.value.push({
                         id: Date.now().toString() + "_" + idx,
                         tagId: selectedTagId.value,
-                        maskB64: b64,
+                        maskB64: item.mask_base64,
                         objId: objId,
                         // 标记历史依据
                         savedPoints: JSON.parse(JSON.stringify(points.value)),
@@ -427,21 +621,74 @@ export default {
                         savedText: textPrompt.value
                     });
                 });
-                statusMessage.value = `共 ${lastMultiMasksB64.value.length} 个解离独立特征已被存入目标列表。`;
-            } else {
-                // 传统单件保存
+                statusMessage.value = `共 ${lastMultiMasksB64.value.length} 个独立特征已被存入列表！`;
+            }
+            resetCurrentSession();
+            redrawAllMasks();
+        };
+
+        const confirmSingleTarget = (idx) => {
+            if (lastMultiMasksB64.value && lastMultiMasksB64.value[idx]) {
+                const item = lastMultiMasksB64.value[idx];
                 const objId = annotations.value.length + 1;
                 annotations.value.push({
-                    id: Date.now().toString(),
+                    id: Date.now().toString() + "_s_" + idx,
                     tagId: selectedTagId.value,
-                    maskB64: lastGeneratedMask.value,
+                    maskB64: item.mask_base64,
                     objId: objId,
                     savedPoints: JSON.parse(JSON.stringify(points.value)),
                     savedBox: currentBox.value ? JSON.parse(JSON.stringify(currentBox.value)) : null,
                     savedText: textPrompt.value
                 });
-                statusMessage.value = '特征已定型存入目标列表。可以开始绘制下一个目标或点击全量追踪。';
+                // 从待确认池剔除该体
+                lastMultiMasksB64.value.splice(idx, 1);
+
+                statusMessage.value = `单目标已被确立。剩余 ${lastMultiMasksB64.value.length} 个候选。`;
+
+                // 如果待确定池空了，自动收尾这把
+                if (lastMultiMasksB64.value.length === 0) {
+                    resetCurrentSession();
+                } else {
+                    drawCurrentMask();
+                }
+                redrawAllMasks();
             }
+        };
+
+        const cancelSingleTarget = (idx) => {
+            if (lastMultiMasksB64.value && lastMultiMasksB64.value.length > idx) {
+                lastMultiMasksB64.value.splice(idx, 1);
+                statusMessage.value = `单目标已被抛弃。剩余 ${lastMultiMasksB64.value.length} 个候选。`;
+                if (lastMultiMasksB64.value.length === 0) {
+                    resetCurrentSession();
+                } else {
+                    drawCurrentMask();
+                }
+                redrawAllMasks();
+            }
+        };
+
+        const clearPending = () => {
+            lastMultiMasksB64.value = [];
+            statusMessage.value = "已清空所有待确认候补列表。";
+            resetCurrentSession();
+            redrawAllMasks();
+        };
+
+        // --- 取消通用的单一 save 的多目标能力（专属抽离到上述） ---
+        const saveCurrentAnnotation = () => {
+            if (!lastGeneratedMask.value || !selectedTagId.value) return;
+            const objId = annotations.value.length + 1;
+            annotations.value.push({
+                id: Date.now().toString(),
+                tagId: selectedTagId.value,
+                maskB64: lastGeneratedMask.value,
+                objId: objId,
+                savedPoints: JSON.parse(JSON.stringify(points.value)),
+                savedBox: currentBox.value ? JSON.parse(JSON.stringify(currentBox.value)) : null,
+                savedText: textPrompt.value
+            });
+            statusMessage.value = '特征已定型存入目标列表。可以开始绘制下一个目标或点击全量追踪。';
 
             resetCurrentSession();
             redrawAllMasks();
@@ -449,6 +696,7 @@ export default {
 
         const deleteAnnotation = (id) => {
             annotations.value = annotations.value.filter(a => a.id !== id);
+            maskDataCache.delete(id); // 同时清理缓存
             redrawAllMasks();
         };
 
@@ -523,6 +771,14 @@ export default {
                 videoUrl.value = null; // 抹除视频模式
                 imageUrl.value = base64Data;
                 showUploadModal.value = false;
+
+                // 深度清空历史遗单
+                annotations.value = [];
+                maskDataCache.clear();
+                lastGeneratedMask.value = '';
+                rawMultiMasksB64.value = [];
+                lastMultiMasksB64.value = [];
+                textPrompt.value = '';
                 resetCurrentSession();
 
                 try {
@@ -678,7 +934,15 @@ export default {
                 return;
             }
 
+            // 放开识别模式下的交互选取
             if (!sessionId.value || isLoading.value) return;
+            if (!['labeling', 'recognition', 'tracking'].includes(subTab.value)) return;
+
+            // [取消自动清空] 允许用户利用点选/框选来优化调整之前的文字识别结果
+            // if (textPrompt.value) {
+            //     textPrompt.value = '';
+            // }
+
             const pos = getCanvasMousePos(e);
 
             if (e.button === 2) { // 右键负提示
@@ -693,6 +957,7 @@ export default {
         };
 
         const handleMouseMove = (e) => {
+            // 【改 2】：放开识别模式下的交互选取
             if (!isDragging.value) return;
             const pos = getCanvasMousePos(e);
             dragBox.value = {
@@ -781,13 +1046,13 @@ export default {
                             mask_color: hexToBgr(targetColor),
                             v_width: canvasRef.value.width,
                             v_height: canvasRef.value.height,
-                            text_threshold: parseFloat(textThreshold.value)
+                            text_threshold: parseFloat(confidenceThreshold.value)
                         });
                         maskBase64 = res.data.mask_base64;
-                        lastMultiMasksB64.value = res.data.multi_masks_base64 || [];
-                        statusMessage.value = `掩码已高亮展示 (识别到 ${lastMultiMasksB64.value.length || 1} 个子片)。`;
+                        rawMultiMasksB64.value = res.data.multi_masks_base64 || [];
                         lastGeneratedMask.value = maskBase64;
-                        drawCurrentMask();
+                        // 这里我们获取到了 raw 后，执行 IOU 过滤
+                        await applyIouFilter();
                     }
                 } catch (e) {
                     console.error("生成失败", e);
@@ -899,16 +1164,15 @@ export default {
                     v_width: canvasRef.value.width,
                     v_height: canvasRef.value.height,
                     find_similar: true,
-                    similarity_threshold: parseFloat(similarityThreshold.value),
-                    text_threshold: parseFloat(textThreshold.value)
+                    similarity_threshold: parseFloat(confidenceThreshold.value),
+                    text_threshold: parseFloat(confidenceThreshold.value)
                 });
 
                 if (res.data.mask_base64) {
                     lastGeneratedMask.value = res.data.mask_base64;
-                    lastMultiMasksB64.value = res.data.multi_masks_base64 || [];
-                    drawCurrentMask();
+                    rawMultiMasksB64.value = res.data.multi_masks_base64 || [];
+                    await applyIouFilter();
                 }
-                statusMessage.value = `同类关联提取已完成 (共聚合 ${lastMultiMasksB64.value.length || 1} 个碎片)。满意请点 [确认存入]。`;
             } catch (e) {
                 console.error("生成同类失败", e);
                 statusMessage.value = '寻找近亲族群掩码异常。';
@@ -934,9 +1198,16 @@ export default {
                 }
             });
 
-            // 2. Current mask
+            // 2. Multi-masks (待确认池)
+            if (lastMultiMasksB64.value && lastMultiMasksB64.value.length > 0) {
+                lastMultiMasksB64.value.forEach(item => {
+                    imagesToLoad.push({ src: item.mask_base64, type: 'candidate' });
+                });
+            }
+
+            // [修复显示遮挡] 即使有待确认池，单一生成的交互掩码(lastGeneratedMask)也应显示，用于即时反馈
             if (lastGeneratedMask.value) {
-                imagesToLoad.push({ src: lastGeneratedMask.value, type: 'current' });
+                imagesToLoad.push({ src: lastGeneratedMask.value, type: 'current_mask' });
             }
 
             const drawSyncPrompts = () => {
@@ -977,13 +1248,39 @@ export default {
                         ctx.globalAlpha = 1.0;
                     }
                 });
-                // Draw current
-                const current = imagesToLoad.find(i => i.type === 'current');
-                if (current && current.img) {
-                    ctx.globalAlpha = 0.6;
-                    ctx.drawImage(current.img, 0, 0);
-                    ctx.globalAlpha = 1.0;
-                }
+                // Draw candidate multi-masks
+                const candidates = imagesToLoad.filter(i => i.type === 'candidate');
+
+                candidates.forEach((current, idx) => {
+                    if (current && current.img) {
+                        if (hoveredPendingIdx.value === idx) {
+                            // 悬停时：完全不透明展示，附加强烈发光，并绘制两次以显著加深原本半透明的面罩颜色
+                            ctx.globalAlpha = 1.0;
+                            ctx.shadowColor = getTagColor(selectedTagId.value);
+                            ctx.shadowBlur = 20;
+                            ctx.drawImage(current.img, 0, 0);
+                            ctx.shadowBlur = 0; // 第二次绘制不需要阴影叠加，纯粹加深色块
+                            ctx.drawImage(current.img, 0, 0);
+                        } else {
+                            // 未悬停时：进一步降低透明度以凸显对比
+                            ctx.globalAlpha = 0.4;
+                            ctx.shadowBlur = 0;
+                            ctx.drawImage(current.img, 0, 0);
+                        }
+                        ctx.globalAlpha = 1.0;
+                    }
+                });
+
+                // Draw current active mask (from lastGeneratedMask)
+                const activeOnes = imagesToLoad.filter(i => i.type === 'current_mask');
+                activeOnes.forEach(current => {
+                    if (current && current.img) {
+                        ctx.globalAlpha = 0.8;
+                        ctx.drawImage(current.img, 0, 0);
+                        ctx.globalAlpha = 1.0;
+                    }
+                });
+
                 drawSyncPrompts();
             };
 
@@ -1018,8 +1315,10 @@ export default {
             points.value = [];
             currentBox.value = null;
             lastGeneratedMask.value = '';
+            rawMultiMasksB64.value = [];
             lastMultiMasksB64.value = []; // Reset multi-masks as well
             recognitionResult.value = null;
+            textPrompt.value = ''; // 核心修复：彻底清空残余的文字搜索条件
 
             if (!canvasRef.value) return;
             const ctx = canvasRef.value.getContext('2d');
@@ -1041,15 +1340,16 @@ export default {
         return {
             subTab, showUploadModal, imageRef, videoRef, canvasRef,
             imageUrl, videoUrl, sessionId, statusMessage, isLoading,
-            tags, selectedTagId, isCreatingTag, newTagName, newTagColor, annotations, hoveredAnnId,
+            isLeftPanelExpanded, isRightPanelExpanded,
+            tags, selectedTagId, isCreatingTag, newTagName, newTagColor, annotations, hoveredAnnId, hoveredPendingIdx,
             zoomLevel, panOffset, globalSpacePushed, isPanDragging, isHintExpanded,
             lastGeneratedMask, lastMultiMasksB64, recognitionResult, currentFrameIdx, textPrompt,
             handleWheel, startPan, doPan, endPan,
-            onImageSelected, onStreamFrame, handleVideoLoaded, onImageLoaded, saveCurrentAnnotation, resetCurrentSession,
+            onImageSelected, onStreamFrame, handleVideoLoaded, onImageLoaded, saveCurrentAnnotation, confirmMultiTargets, confirmSingleTarget, cancelSingleTarget, clearPending, resetCurrentSession,
             handleMouseDown, handleMouseMove, handleMouseUp, requestPrediction, requestRecognition, requestSimilarSeg, startVideoTracking,
             confirmCreateTag, deleteTag, toggleTagVisibility, getTagColor, getTagName, deleteAnnotation,
-            handleUpload, handleTextPromptSubmit, textThreshold,
-            points, currentBox, dragBox, showTrackingResult, similarityThreshold,
+            handleUpload, handleTextPromptSubmit, confidenceThreshold, applyIouFilter, handleThresholdChange,
+            points, currentBox, dragBox, showTrackingResult, iouThreshold,
             trackingTasks, stopOrDeleteTask, previewTrackingResult
         };
     }

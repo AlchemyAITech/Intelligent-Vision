@@ -74,7 +74,7 @@ export default {
                         运行中引擎: {{ actualModelName }}
                     </div>
                 </div>
-                <div v-if="!imageUrl" class="empty-state">请加载一张图片。</div>
+                <div v-if="!imageUrl" class="empty-state">请载入图片或视频进行检测。</div>
                 <div v-else>
                     <div class="result-display" style="position:relative; background:#eee; border-radius:12px; overflow:hidden; max-height:70vh; height:100%; display:flex; align-items:center; justify-content:center;">
                         <img :src="resultImageUrl || imageUrl" class="preview-img" style="width:100%; height:100%; object-fit: contain;">

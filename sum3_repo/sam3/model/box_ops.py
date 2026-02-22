@@ -195,6 +195,7 @@ def fast_diag_box_iou(boxes1, boxes2):
     return iou
 
 
+
 def box_xywh_inter_union(
     boxes1: torch.Tensor, boxes2: torch.Tensor
 ) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -217,3 +218,29 @@ def box_xywh_inter_union(
     union = area1 + area2 - inter
 
     return inter, union
+
+
+def normalize_bbox(bbox_xywh, img_w, img_h):
+    # Assumes bbox_xywh is in XYWH format
+    if isinstance(bbox_xywh, list):
+        assert len(bbox_xywh) == 4, (
+            "bbox_xywh list must have 4 elements. Batching not support except for torch tensors."
+        )
+        normalized_bbox = bbox_xywh.copy()
+        normalized_bbox[0] /= img_w
+        normalized_bbox[1] /= img_h
+        normalized_bbox[2] /= img_w
+        normalized_bbox[3] /= img_h
+    else:
+        assert isinstance(bbox_xywh, torch.Tensor), (
+            "Only torch tensors are supported for batching."
+        )
+        normalized_bbox = bbox_xywh.clone()
+        assert normalized_bbox.size(-1) == 4, (
+            "bbox_xywh tensor must have last dimension of size 4."
+        )
+        normalized_bbox[..., 0] /= img_w
+        normalized_bbox[..., 1] /= img_h
+        normalized_bbox[..., 2] /= img_w
+        normalized_bbox[..., 3] /= img_h
+    return normalized_bbox

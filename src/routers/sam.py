@@ -139,21 +139,25 @@ class SAM3Backend:
         
         # ======== 分支 1：存在文本提示、或者要求全图寻找同类 (走 Sam3Processor) ========
         if (text_prompt or prompts.get("find_similar")) and self.image_processor:
+            import torch.nn.functional as F
             try:
                 state = self.sessions[session_id]["processor_state"]
-                self.image_processor.reset_all_prompts(state)
                 
+                # 同步前端阈值到感知引擎
+                threshold = prompts.get("similarity_threshold", prompts.get("text_threshold", 0.5))
+                self.image_processor.set_confidence_threshold(threshold, state)
+
                 # 1. 重置以往所有遗留提示
                 self.image_processor.reset_all_prompts(state)
                 
-                # 2. 加入文本提示 (如 "苹果", "shoe")，若为空也要走这个流程以触发特征融合空间初始化
-                prompt_to_set = text_prompt if text_prompt.strip() else ""
-                state = self.image_processor.set_text_prompt(state=state, prompt=prompt_to_set)
+                # 2. 加入文本提示 (如 "苹果", "shoe")
+                prompt_to_set = text_prompt.strip() if text_prompt else ""
+                if prompt_to_set:
+                    state = self.image_processor.set_text_prompt(state=state, prompt=prompt_to_set)
                 
                 # 3. 如果还有框提示（叠加框）
                 if len(boxes) > 0:
-                    from sam3.visualization_utils import normalize_bbox
-                    from sam3.model.box_ops import box_xywh_to_cxcywh
+                    from sam3.model.box_ops import normalize_bbox, box_xywh_to_cxcywh
                     
                     b = boxes[-1]
                     h, w = self.sessions[session_id]["shape"]
@@ -171,7 +175,7 @@ class SAM3Backend:
                 if len(point_coords) > 0:
                     for pt, lbl in zip(point_coords, point_labels):
                         # pt_label: 1 is positive, 0 is negative
-                        state = self.image_processor.add_geometric_prompt(
+                        state = self.image_processor.add_point_prompt(
                             state=state, point=pt, label=lbl
                         )
                 # 5. 对于纯点面特征的扩散（find_similar 借由多锚点提问），确保推理被触发
@@ -184,36 +188,71 @@ class SAM3Backend:
                 
                 if out_masks is None or len(out_masks) == 0:
                     # 对于空返回的自然语言，我们平滑回退，不抛出致命报错
-                    return np.zeros((self.sessions[session_id]["shape"][0], self.sessions[session_id]["shape"][1], 4), dtype=np.uint8)
-                    
-                # 提取掩码：如果开启了同类寻找 或者是 独立的文本检索（文本理应支持多目标）
-                multi_bgra_list = []
+                    return np.zeros((self.sessions[session_id]["shape"][0], self.sessions[session_id]["shape"][1], 4), dtype=np.uint8), []
                 
-                if prompts.get("find_similar") or text_prompt:
-                    threshold = prompts.get("similarity_threshold", 0.3) if prompts.get("find_similar") else prompts.get("text_threshold", 0.4)
+                # [关键修复]：SAM3 返回的 masks 是低分辨特征层 (如 256x256)，必须通过双线性插值拉伸回原始分辨率，否则前端 IOU 数组长度将完全不匹配！
+                h_orig, w_orig = self.sessions[session_id]["shape"]
+                
+                # 确保 out_masks 是 [N, H, W] 的 3D 格式
+                if len(out_masks.shape) == 2:
+                    out_masks = out_masks.unsqueeze(0) # [1, H, W]
+                elif len(out_masks.shape) > 3:
+                    out_masks = out_masks.squeeze() # 尝试压平
+                    if len(out_masks.shape) == 2:
+                        out_masks = out_masks.unsqueeze(0)
+                
+                # out_masks: [N, H, W] -> 增加 batch 维变身为 [1, N, H, W] (把 N 当做 channel 看待)
+                out_masks_4d = out_masks.unsqueeze(0).float()
+                
+                # 强制按照前台最初传上来的实际原图宽高等比拉出高分辨率 mask
+                out_masks_upscaled = F.interpolate(
+                    out_masks_4d,
+                    size=(h_orig, w_orig),
+                    mode="bilinear",
+                    align_corners=False
+                )
+                
+                # 恢复为 [N, H_orig, W_orig]
+                out_masks_upscaled = out_masks_upscaled.squeeze(0) 
+                # 将插值恢复好的高分辨张量覆盖回去
+                out_masks = (out_masks_upscaled > 0).float() # 在缩放后重新二值化
+
+                # 提取掩码：如果开启了同类寻找，或者纯文本全图提词，才把符合阈值的全部混入多目标序列
+                multi_bgra_list = [] # List of tuples: (mask_np, score_float)
+                
+                is_pure_text_query = bool(text_prompt and len(point_coords) == 0 and len(boxes) == 0)
+                
+                if prompts.get("find_similar") or is_pure_text_query:
+                    if prompts.get("find_similar"):
+                        threshold = prompts.get("similarity_threshold", 0.3)
+                    else:
+                        threshold = prompts.get("text_threshold", 0.5)
+                        
                     valid_indices = torch.where(scores > threshold)[0]
                     
                     if len(valid_indices) == 0:
                         # 兜底：如果连低阈值都没找到，至少返回最有信心的那个
                         best_idx = torch.argmax(scores).item() if scores is not None and len(scores) > 0 else 0
+                        best_score = float(scores[best_idx].item()) if scores is not None and len(scores) > 0 else 0.0
                         best_mask = np.squeeze(out_masks[best_idx].cpu().numpy())
-                        multi_bgra_list.append(best_mask)
+                        multi_bgra_list.append((best_mask, best_score))
                     else:
                         # 混合所有过线的目标，并保留多目标副本
                         best_mask = None
                         for idx in valid_indices:
+                            score_val = float(scores[idx].item())
                             mask_np = np.squeeze(out_masks[idx].cpu().numpy())
-                            multi_bgra_list.append(mask_np)
+                            multi_bgra_list.append((mask_np, score_val))
                             if best_mask is None:
                                 best_mask = mask_np
                             else:
                                 best_mask = np.logical_or(best_mask, mask_np)
                 else:
-                    # 提取最有信心的掩码 (点/框默认单选模式)
+                    # [修复文本污染]：如果仅仅是传了文本辅助点/框修正，绝不越权返回群像，只牢牢锁定返回置信度 Top 1
                     best_idx = torch.argmax(scores).item() if scores is not None and len(scores) > 0 else 0
+                    best_score = float(scores[best_idx].item()) if scores is not None and len(scores) > 0 else 0.0
                     best_mask = out_masks[best_idx].cpu().numpy()
                     best_mask = np.squeeze(best_mask) # 强制降维防止拆包错误
-                    multi_bgra_list.append(best_mask)
                 
                 # 如果降维后还是长宽以上的维度，我们要保底取最后一维的两面
                 if len(best_mask.shape) >= 2:
@@ -228,13 +267,13 @@ class SAM3Backend:
                 mask_bool = best_mask > 0
                 bgra[mask_bool] = color
                 
-                # 各子图平行渲染
+                # 各子图平行渲染及其分数绑定
                 rendered_multi_bgra = []
-                for sub_mask in multi_bgra_list:
+                for sub_mask, score_val in multi_bgra_list:
                     sub_bgra = np.zeros((h, w, 4), dtype=np.uint8)
                     sub_bool = sub_mask > 0
                     sub_bgra[sub_bool] = color
-                    rendered_multi_bgra.append(sub_bgra)
+                    rendered_multi_bgra.append({"mask": sub_bgra, "score": score_val})
                     
                 return bgra, rendered_multi_bgra
             
@@ -272,7 +311,7 @@ class SAM3Backend:
                 color = prompts.get("mask_color", [185, 128, 41, 153]) # [B, G, R, A]
                 bgra[mask_bool] = color
                 
-                return bgra
+                return bgra, []
                 
             except Exception as e:
                 import traceback
@@ -382,10 +421,15 @@ async def predict_mask(req: PredictRequest):
         
         # 编码各个分离的目标子图
         multi_b64_list = []
-        for child_mask in multi_masks:
+        for child_item in multi_masks:
+            child_mask = child_item["mask"]
+            score_val = child_item["score"]
             _, c_buffer = cv2.imencode('.png', child_mask)
             cb64_str = base64.b64encode(c_buffer).decode('utf-8')
-            multi_b64_list.append(f"data:image/png;base64,{cb64_str}")
+            multi_b64_list.append({
+                "mask_base64": f"data:image/png;base64,{cb64_str}",
+                "score": score_val
+            })
             
         return {
             "mask_base64": main_mask_b64,
@@ -683,7 +727,7 @@ async def video_propagate(req: PredictRequest, background_tasks: BackgroundTasks
             "progress": 0,
             "totalFrames": 0,
             "stop_requested": False,
-            "created_at": time.time()
+            "created_at": __import__('time').time()
         }
         
         # 将推流沉重计算砸入 FastAPI 的独立线程池
