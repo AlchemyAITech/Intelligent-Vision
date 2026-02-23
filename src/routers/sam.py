@@ -36,7 +36,7 @@ router = APIRouter()
 # ====== 1. Model Initialization, Preprocessing & Inference ======
 class SAM3Backend:
     def __init__(self):
-        self.device = "cpu"
+        self.device = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"
         self.model = None
         self.predictor = None
         self.image_processor = None
@@ -472,10 +472,16 @@ async def video_start_session(req: VideoStartRequest):
     if sam3_backend.video_predictor is None:
         raise HTTPException(status_code=500, detail="SAM3 Video Predictor is NOT initialized on start.")
     try:
+        video_path = req.video_path
+        if not os.path.isabs(video_path):
+            video_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", video_path))
+        if not os.path.exists(video_path):
+            raise HTTPException(status_code=404, detail=f"Video file not found: {video_path}")
+            
         session_id = str(uuid.uuid4())
-        res = sam3_backend.video_predictor.start_session(resource_path=req.video_path, session_id=session_id)
+        res = sam3_backend.video_predictor.start_session(resource_path=video_path, session_id=session_id)
         sam3_backend.video_sessions[session_id] = {
-            "video_path": req.video_path,
+            "video_path": video_path,
         }
         return {"session_id": res["session_id"], "message": "Video session started."}
     except Exception as e:
@@ -625,7 +631,8 @@ def process_video_tracking_task(session_id: str, video_path: str):
         os.makedirs(out_dir, exist_ok=True)
         out_path = os.path.join(out_dir, out_name)
         
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v') # 前端可能需要 h.264，这里我们先用 mp4v 提供
+        # 针对 Mac 与 前端浏览器兼容，优先尝试 avc1 (H.264)
+        fourcc = cv2.VideoWriter_fourcc(*'avc1')
         out_video = cv2.VideoWriter(out_path, fourcc, fps, (width, height))
         
         masks_dict = {}
@@ -647,7 +654,7 @@ def process_video_tracking_task(session_id: str, video_path: str):
             masks_dict[out_frame_idx] = {}
             for i, obj_id in enumerate(out_obj_ids):
                 # Apply > 0 threshold (or just copy since out_binary_masks is already bool)
-                mask = (out_mask_logits[i, 0] > 0.0).cpu().numpy().astype(np.uint8) if hasattr(out_mask_logits[i, 0], 'cpu') else (out_mask_logits[i, 0] > 0.0).astype(np.uint8)
+                mask = (out_mask_logits[i] > 0.0).cpu().numpy().astype(np.uint8) if hasattr(out_mask_logits[i], 'cpu') else (out_mask_logits[i] > 0.0).astype(np.uint8)
                 masks_dict[out_frame_idx][obj_id] = mask
         
         frame_idx = 0

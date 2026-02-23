@@ -2,7 +2,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
 export default {
     name: 'ImageSource',
-    emits: ['image-selected', 'stream-frame'],
+    emits: ['image-selected', 'stream-frame', 'video-selected', 'local-video-selected'],
     props: {
         hideCaptureBtn: {
             type: Boolean,
@@ -15,6 +15,10 @@ export default {
         defaultSourceType: {
             type: String,
             default: 'upload'
+        },
+        disableStreaming: {
+            type: Boolean,
+            default: false
         },
         autoStart: {
             type: Boolean,
@@ -173,6 +177,7 @@ export default {
             selectedFileName.value = selectedLocalVideoFile.value;
             stopVideo();
             playVideoSource('/video/' + selectedLocalVideoFile.value);
+            emit('local-video-selected', selectedLocalVideoFile.value);
         };
 
         const playVideoSource = (url) => {
@@ -180,7 +185,9 @@ export default {
                 videoEl.value.src = url;
                 videoEl.value.play().then(() => {
                     isVideoPlaying.value = true;
-                    startStreamingLoop();
+                    if (!props.disableStreaming) {
+                        startStreamingLoop();
+                    }
                 }).catch(e => console.error("Video play failed", e));
             }
         };

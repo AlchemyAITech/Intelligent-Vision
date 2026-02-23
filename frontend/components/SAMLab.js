@@ -282,7 +282,7 @@ export default {
                     <button class="close-btn" @click="showTrackingResult = false">×</button>
                 </div>
                 <div class="modal-body" style="padding: 10px;">
-                    <video v-if="videoUrl" :src="videoUrl" controls autoplay loop style="max-width: 100%; max-height: 70vh;border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></video>
+                    <video v-if="trackingResultUrl" :src="trackingResultUrl" controls autoplay loop style="max-width: 100%; max-height: 70vh;border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></video>
                 </div>
             </div>
         </div>
@@ -310,15 +310,10 @@ export default {
                     <button class="close-btn" @click="showUploadModal = false">×</button>
                 </div>
                 <div class="modal-body">
-                    <div class="upload-area">
-                        <label class="upload-btn">
-                            📤 选择{{ subTab === 'tracking' ? '视频' : '文件' }}
-                            <input type="file" :accept="subTab === 'tracking' ? 'video/*' : 'image/*'" @change="handleUpload" hidden>
-                        </label>
-                        <p class="upload-hint">支持拖拽文件到窗口</p>
-                        <p class="upload-hint" style="color:#d946ef; font-weight:bold" v-if="subTab === 'tracking'">⚠️ 当前由于后端显存限制可能导致推理失败</p>
+                    <div class="upload-area" v-if="subTab === 'tracking'">
+                        <p class="upload-hint" style="color:#d946ef; font-weight:bold; margin-bottom: 10px;">⚠️ 当前由于硬件限制可能视频特征抽取与追踪过程会比较慢</p>
                     </div>
-                    <ImageSource v-if="subTab !== 'tracking'" @image-selected="onImageSelected" @stream-frame="onStreamFrame" />
+                    <ImageSource @image-selected="onImageSelected" @stream-frame="onStreamFrame" @video-selected="handleUploadFromComponent" @local-video-selected="handleLocalVideo" :defaultSourceType="subTab === 'tracking' ? 'local_video' : 'upload'" :disableStreaming="subTab === 'tracking'" />
                 </div>
             </div>
         </div>
@@ -340,6 +335,7 @@ export default {
         const subTab = ref('labeling');
         const imageUrl = ref('');
         const videoUrl = ref(''); // Added videoUrl
+        const trackingResultUrl = ref(''); // 弹出层视频结果地址
         const sessionId = ref('');
         const statusMessage = ref('等待图像加载...');
         const isLoading = ref(false);
@@ -447,12 +443,11 @@ export default {
             }
             window.addEventListener('keydown', handleKeyDown);
             window.addEventListener('keyup', handleKeyUp);
-            fetchTasks();
-            fetchTasksInterval = setInterval(fetchTasks, 2000);
+            fetchTasks(); // 初始化只拉一次以恢复之前的断点记录
         });
 
         onUnmounted(() => {
-            if (fetchTasksInterval) clearInterval(fetchTasksInterval);
+            stopPolling();
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
         });
@@ -709,17 +704,61 @@ export default {
             uploadAndInitSession(file);
         };
 
-        const onStreamFrame = async (b64) => {
-            // 在标注模式下，如果尚未加载图片，允许通过流媒体首帧初始化
+        const onStreamFrame = async (b64) => { // ImageSource 组件传来的视频帧
+            if (!b64 || subTab.value === 'tracking') return; // 如果处于追踪模式，坚决拒收流媒体帧（防闪屏）
+
+            // 在标注/识别模式下，如果尚未加载图片，允许通过流媒体首帧初始化
             if (!imageUrl.value && b64) {
-                imageUrl.value = b64;
-                const res = await fetch(b64);
+                imageUrl.value = "data:image/jpeg;base64," + b64;
+                const res = await fetch("data:image/jpeg;base64," + b64);
                 const blob = await res.blob();
                 uploadAndInitSession(blob);
+                return;
             }
-            // 如果处于追踪模式且已就绪，实时处理流图像
-            if (subTab.value === 'tracking' && sessionId.value && !isLoading.value) {
+
+            // 实时更新用于预览的画面
+            imageUrl.value = "data:image/jpeg;base64," + b64;
+
+            // 下方逻辑实际上只有 labeling 或 recognition 才能遇到
+            if (sessionId.value && !isLoading.value) {
                 requestPrediction();
+            }
+        };
+
+        const handleUploadFromComponent = (payload) => {
+            const file = payload.data;
+            if (!file) return;
+            handleUpload({ target: { files: [file] } });
+        };
+
+        const handleLocalVideo = async (payload) => {
+            const fileName = payload.data || payload;
+            if (!fileName || typeof fileName !== 'string') return;
+
+            if (subTab.value === 'tracking') {
+                isLoading.value = true;
+                statusMessage.value = "正在拉取本地置备视频...";
+                showUploadModal.value = false;
+
+                // 本地预览直接指向服务器已开放的 /video 静态分发口
+                videoUrl.value = window.location.origin + "/video/" + fileName;
+                imageUrl.value = null;
+                resetCurrentSession();
+
+                try {
+                    statusMessage.value = "正在提取视频底层特征及建立时空图谱...";
+                    const startRes = await axios.post(`${API_BASE}/video/start_session`, {
+                        video_path: "video/" + fileName
+                    });
+
+                    sessionId.value = startRes.data.session_id;
+                    statusMessage.value = "极速通道：追踪实例建立完毕";
+                } catch (e) {
+                    console.error("Local Video Binding Failed: ", e);
+                    statusMessage.value = "本地视频建立失败，请检查文件是否存在";
+                } finally {
+                    isLoading.value = false;
+                }
             }
         };
 
@@ -1067,15 +1106,11 @@ export default {
         };
 
         const fetchTasks = async () => {
-            // 实装前端空闲轮询避让：如果不在 tracking 面板且没有任何进行中的任务，停止拉取以免污染后端日志
-            const hasActive = trackingTasks.value.some(t => t.status === 'processing');
-            if (!hasActive && subTab.value !== 'tracking') {
-                return;
-            }
             try {
                 const res = await axios.get(`${API_BASE}/video/tasks`);
                 trackingTasks.value = res.data;
                 const active = res.data.find(t => t.session_id === sessionId.value && t.status === 'processing');
+
                 if (active) {
                     statusMessage.value = `正在后台流式计算掩码... 已处理到第 ${active.progress} 帧 / 共 ${active.totalFrames || '?'} 帧`;
                 } else if (isLoading.value && sessionId.value) {
@@ -1087,6 +1122,29 @@ export default {
             }
         };
 
+        const startPolling = () => {
+            if (!fetchTasksInterval) {
+                fetchTasksInterval = setInterval(fetchTasks, 2000);
+            }
+        };
+
+        const stopPolling = () => {
+            if (fetchTasksInterval) {
+                clearInterval(fetchTasksInterval);
+                fetchTasksInterval = null;
+            }
+        };
+
+        // 按需响应：只有处于 tracking 并且存在相关任务时，才启动轮询器
+        watchEffect(() => {
+            const hasActive = trackingTasks.value.some(t => t.status === 'processing');
+            if (subTab.value === 'tracking' && hasActive) {
+                startPolling();
+            } else {
+                stopPolling();
+            }
+        });
+
         const stopOrDeleteTask = async (sid) => {
             try {
                 await axios.delete(`${API_BASE}/video/tasks/${sid}`);
@@ -1097,7 +1155,7 @@ export default {
         };
 
         const previewTrackingResult = (url) => {
-            videoUrl.value = url + "?t=" + Date.now();
+            trackingResultUrl.value = url + "?t=" + Date.now();
             showTrackingResult.value = true;
         };
 
@@ -1110,6 +1168,16 @@ export default {
                 await axios.post(`${API_BASE}/video/propagate`, {
                     session_id: sessionId.value
                 });
+
+                // 为了立即激活 watchEffect 的轮询钩子，强行写入一个伪处理态
+                trackingTasks.value.push({
+                    session_id: sessionId.value,
+                    status: 'processing',
+                    progress: 0,
+                    totalFrames: 0
+                });
+                startPolling(); // 确保探测齿轮立即工作
+
                 fetchTasks();
             } catch (e) {
                 console.error("追踪启动失败", e);
@@ -1339,13 +1407,13 @@ export default {
         // ================= 模块导出 =================
         return {
             subTab, showUploadModal, imageRef, videoRef, canvasRef,
-            imageUrl, videoUrl, sessionId, statusMessage, isLoading,
+            imageUrl, videoUrl, trackingResultUrl, sessionId, statusMessage, isLoading,
             isLeftPanelExpanded, isRightPanelExpanded,
             tags, selectedTagId, isCreatingTag, newTagName, newTagColor, annotations, hoveredAnnId, hoveredPendingIdx,
             zoomLevel, panOffset, globalSpacePushed, isPanDragging, isHintExpanded,
             lastGeneratedMask, lastMultiMasksB64, recognitionResult, currentFrameIdx, textPrompt,
             handleWheel, startPan, doPan, endPan,
-            onImageSelected, onStreamFrame, handleVideoLoaded, onImageLoaded, saveCurrentAnnotation, confirmMultiTargets, confirmSingleTarget, cancelSingleTarget, clearPending, resetCurrentSession,
+            onImageSelected, onStreamFrame, handleUploadFromComponent, handleLocalVideo, handleVideoLoaded, onImageLoaded, saveCurrentAnnotation, confirmMultiTargets, confirmSingleTarget, cancelSingleTarget, clearPending, resetCurrentSession,
             handleMouseDown, handleMouseMove, handleMouseUp, requestPrediction, requestRecognition, requestSimilarSeg, startVideoTracking,
             confirmCreateTag, deleteTag, toggleTagVisibility, getTagColor, getTagName, deleteAnnotation,
             handleUpload, handleTextPromptSubmit, confidenceThreshold, applyIouFilter, handleThresholdChange,

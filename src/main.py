@@ -36,6 +36,10 @@ bank_path = os.path.join(os.path.dirname(__file__), "..", "data", "face_bank")
 if os.path.exists(images_path):
     app.mount("/images", StaticFiles(directory=images_path), name="images")
 
+video_path_dir = os.path.join(os.path.dirname(__file__), "..", "video")
+if os.path.exists(video_path_dir):
+    app.mount("/video", StaticFiles(directory=video_path_dir), name="video")
+
 if os.path.exists(bank_path):
     app.mount("/face_bank", StaticFiles(directory=bank_path), name="face_bank")
 
