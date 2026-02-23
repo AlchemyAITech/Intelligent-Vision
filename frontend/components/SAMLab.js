@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, nextTick, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick, computed, watch, watchEffect } from 'vue';
 import ImageSource from './ImageSource.js';
 
 export default {

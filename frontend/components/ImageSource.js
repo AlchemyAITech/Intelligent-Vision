@@ -59,19 +59,25 @@ export default {
 
             <!-- Local Image -->
             <div v-show="sourceType === 'local'" class="source-panel">
-                <select v-model="selectedLocalFile" @change="handleLocalSelect" style="width:100%; padding:8px;">
-                    <option value="" disabled>--选择已缓存图片--</option>
-                    <option v-for="file in localFiles" :key="file" :value="file">{{ file }}</option>
-                </select>
+                <div style="display:flex; gap:10px;">
+                    <select v-model="selectedLocalFile" @change="handleLocalSelect" style="flex:1; padding:8px;">
+                        <option value="" disabled>--选择已缓存图片--</option>
+                        <option v-for="file in localFiles" :key="file" :value="file">{{ file }}</option>
+                    </select>
+                    <button class="btn-primary" @click="handleLocalSelect" :disabled="!selectedLocalFile">加载</button>
+                </div>
                 <div v-if="localFiles.length===0" style="color:#888; font-size:12px; margin-top:5px;">暂无图片</div>
             </div>
 
             <!-- Local Video -->
             <div v-show="sourceType === 'local_video'" class="source-panel">
-                <select v-model="selectedLocalVideoFile" @change="handleLocalVideoSelect" style="width:100%; padding:8px;">
-                    <option value="" disabled>--选择已缓存视频--</option>
-                    <option v-for="file in localVideoFiles" :key="file" :value="file">{{ file }}</option>
-                </select>
+                <div style="display:flex; gap:10px;">
+                    <select v-model="selectedLocalVideoFile" @change="handleLocalVideoSelect" style="flex:1; padding:8px;">
+                        <option value="" disabled>--选择已缓存视频--</option>
+                        <option v-for="file in localVideoFiles" :key="file" :value="file">{{ file }}</option>
+                    </select>
+                    <button class="btn-primary" @click="handleLocalVideoSelect" :disabled="!selectedLocalVideoFile">加载</button>
+                </div>
                 <div v-if="localVideoFiles.length===0" style="color:#888; font-size:12px; margin-top:5px;">暂无视频</div>
             </div>
 

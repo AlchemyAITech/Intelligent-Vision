@@ -1,11 +1,11 @@
 import { createApp, ref, shallowRef, computed, watch } from 'vue';
 window.Vue = { ref, shallowRef, computed, watch }; // 供组件内部结构取用
-import SAMLab from './components/SAMLab.js?v=2026.111';
-import ColorLab from './components/ColorLab.js?v=2026.111';
-import ConvolutionLab from './components/ConvolutionLab.js?v=2026.111';
-import CNNLab from './components/CNNLab.js?v=2026.111';
-import YOLOLab from './components/YOLOLab.js?v=2026.111';
-import FaceLab from './components/FaceLab.js?v=2026.111';
+import SAMLab from './components/SAMLab.js?v=2026.113';
+import ColorLab from './components/ColorLab.js?v=2026.113';
+import ConvolutionLab from './components/ConvolutionLab.js?v=2026.113';
+import CNNLab from './components/CNNLab.js?v=2026.113';
+import YOLOLab from './components/YOLOLab.js?v=2026.113';
+import FaceLab from './components/FaceLab.js?v=2026.113';
 
 const app = createApp({
     template: `
