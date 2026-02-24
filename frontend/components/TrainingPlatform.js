@@ -1,7 +1,13 @@
 import { ref } from 'vue';
+import DataManagement from './DataManagement.js?v=2026.115';
+import ProjectManagement from './ProjectManagement.js?v=2026.115';
 
 export default {
     name: 'TrainingPlatform',
+    components: {
+        DataManagement,
+        ProjectManagement
+    },
     template: `
     <div style="display: flex; width: 100vw; height: 100vh;">
         <!-- Training Platform Sidebar -->
@@ -24,15 +30,9 @@ export default {
         </div>
 
         <!-- Training Sandbox Area -->
-        <div class="main-content" style="background: #fafafc;">
-            <div v-if="currentSection === 'data'">
-                <h2>数据管理 (即将开放)</h2>
-                <p>支持批量图像导入，支持自动与半自动（SAM零样本辅助）多模态标注闭环区。支持 COCO 与 YOLO 格式。</p>
-            </div>
-            <div v-else-if="currentSection === 'projects'">
-                <h2>模型项目工程仓 (即将开放)</h2>
-                <p>基于硬件极速器 (MPS/CUDA) 的 Ultralytics 并行图谱。在此组装链路、拉起 Zero/Few Shot 及挂载验证集降维分析阵列。</p>
-            </div>
+        <div class="main-content" style="background: #fafafc; flex: 1; overflow: auto;">
+            <DataManagement v-if="currentSection === 'data'" />
+            <ProjectManagement v-else-if="currentSection === 'projects'" />
         </div>
     </div>
     `,
