@@ -1,16 +1,16 @@
 import { createApp, ref, shallowRef, computed, watch } from 'vue';
 window.Vue = { ref, shallowRef, computed, watch }; // 供组件内部结构取用
-import HomePortal from './components/HomePortal.js?v=2026.116';
-import ExperienceModule from './components/ExperienceModule.js?v=2026.116';
-import TrainingPlatform from './components/TrainingPlatform.js?v=2026.116';
+import HomePortal from './components/HomePortal.js?v=2026.117';
+import ExperienceModule from './components/ExperienceModule.js?v=2026.117';
+import TrainingPlatform from './components/TrainingPlatform.js?v=2026.117';
 
 // 用于将独立模块下沉传递（为了解耦，避免全部导入打包在一个文件内）
-import SAMLab from './components/SAMLab.js?v=2026.116';
-import ColorLab from './components/ColorLab.js?v=2026.116';
-import ConvolutionLab from './components/ConvolutionLab.js?v=2026.116';
-import CNNLab from './components/CNNLab.js?v=2026.116';
-import YOLOLab from './components/YOLOLab.js?v=2026.116';
-import FaceLab from './components/FaceLab.js?v=2026.116';
+import SAMLab from './components/SAMLab.js?v=2026.117';
+import ColorLab from './components/ColorLab.js?v=2026.117';
+import ConvolutionLab from './components/ConvolutionLab.js?v=2026.117';
+import CNNLab from './components/CNNLab.js?v=2026.117';
+import YOLOLab from './components/YOLOLab.js?v=2026.117';
+import FaceLab from './components/FaceLab.js?v=2026.117';
 
 const LAB_REGISTRY = {
     ColorLab, ConvolutionLab, CNNLab, YOLOLab, FaceLab, SAMLab

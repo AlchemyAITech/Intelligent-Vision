@@ -101,7 +101,7 @@ export default {
             </div>
         </div>
 
-        <!-- Training Sandbox (Phase 4) -->
+        <!-- Training Sandbox (Phase 4 & 5) -->
         <div v-else style="flex: 1; display: flex; flex-direction: column; background: #0f172a; border-radius: 16px; color: white; padding: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
             <!-- Header -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid #334155; padding-bottom: 16px;">
@@ -112,13 +112,15 @@ export default {
                     <h2 style="font-size: 20px; font-weight: bold; margin: 0; color: #f8fafc;">🔥 异构加速训练控制台</h2>
                     <span style="font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #1e293b; border: 1px solid #334155; color: #94a3b8;">{{ activeProject?.name }} ⇋ {{ selectedModel }}</span>
                 </div>
-                <div>
-                    <span v-if="trainingStatus === 'idle'" style="color: #94a3b8;"><span style="color: #fbbf24;">●</span> 引擎待命 (Ready)</span>
-                    <span v-else-if="trainingStatus === 'running'" style="color: #4ade80;"><span style="color: #3b82f6;" class="pulse">●</span> 正在计算 (Training...)</span>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button :class="['sandbox-nav', sandboxTab === 'training' ? 'active' : '']" @click="changeSandboxTab('training')">🔥 算力大盘</button>
+                    <button :class="['sandbox-nav', sandboxTab === 'cam' ? 'active' : '']" @click="changeSandboxTab('cam')">🧪 可解释性探测</button>
+                    <button :class="['sandbox-nav', sandboxTab === 'pca' ? 'active' : '']" @click="changeSandboxTab('pca')">🌐 PCA 高维聚类雷达</button>
                 </div>
             </div>
 
-            <div style="display: flex; gap: 24px; flex: 1; overflow: hidden;">
+            <!-- Tab 1: Training -->
+            <div v-show="sandboxTab === 'training'" style="display: flex; gap: 24px; flex: 1; overflow: hidden;">
                 <!-- 左侧: 控制板 -->
                 <div style="flex: 1; max-width: 300px; background: #1e293b; border-radius: 12px; padding: 20px; display: flex; flex-direction: column;">
                     <h3 style="font-size: 16px; color: #e2e8f0; margin-bottom: 20px; font-weight: bold;">算力网络下发参数</h3>
@@ -144,29 +146,67 @@ export default {
 
                     <div style="flex: 1;"></div> <!-- Spacer -->
 
-                    <button v-if="trainingStatus !== 'running'" @click="startTraining" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #a21caf, #6b21a8); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(162, 28, 175, 0.4);">
+                    <button v-if="trainingStatus !== 'running'" @click="startTraining" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #a21caf, #6b21a8); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(162, 28, 175, 0.4); margin-bottom: 10px;">
                         🚀 下发训练指令
                     </button>
-                    <button v-else style="width: 100%; padding: 12px; background: transparent; border: 1px dashed #4ade80; color: #4ade80; border-radius: 8px; font-weight: bold; cursor: not-allowed;">
-                        引擎轰鸣中... (计算中)
+                    <button v-else style="width: 100%; padding: 12px; background: transparent; border: 1px dashed #4ade80; color: #4ade80; border-radius: 8px; font-weight: bold; cursor: not-allowed; margin-bottom: 10px;">
+                        <span class="pulse">●</span> 正在计算中...
+                    </button>
+                    <!-- ONNX Output -->
+                    <button style="width: 100%; padding: 12px; background: #334155; color: #cbd5e0; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background 0.2s;" @click="exportOnnx">
+                        📦 一键导出 ONNX 跨端张量
                     </button>
                 </div>
 
                 <!-- 右侧: 图表区 -->
                 <div style="flex: 3; display: flex; flex-direction: column; gap: 20px;">
-                    <!-- Charts -->
                     <div style="flex: 2; display: flex; gap: 20px;">
-                        <!-- Loss Chart -->
                         <div style="flex: 1; background: #1e293b; border-radius: 12px; padding: 16px; border: 1px solid #334155; position: relative;">
                             <h4 style="font-size: 14px; color: #cbd5e0; margin: 0 0 10px 0;">📉 实时 Box Loss 衰减</h4>
                             <div id="chart-loss" style="width: 100%; height: 90%;"></div>
                         </div>
-                        <!-- mAP Chart -->
                         <div style="flex: 1; background: #1e293b; border-radius: 12px; padding: 16px; border: 1px solid #334155; position: relative;">
                             <h4 style="font-size: 14px; color: #cbd5e0; margin: 0 0 10px 0;">🎯 验证集 mAP@50 精度</h4>
                             <div id="chart-map" style="width: 100%; height: 90%;"></div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Grad CAM -->
+            <div v-show="sandboxTab === 'cam'" style="display: flex; flex-direction: column; flex: 1; align-items: center; justify-content: center; gap: 24px; background: #1e293b; border-radius: 12px; border: 1px solid #334155;">
+                <h3 style="color: #e2e8f0; font-size: 18px; font-weight: bold; margin: 0;">🔮 内网透视 / Grad-CAM 注意力焦点剥离测试</h3>
+                <p style="color: #94a3b8; font-size: 14px; max-width: 600px; text-align: center;">请挂载一张新的测试图片。我们将贯穿当前模型的深层卷积神经网络，并通过伪彩色热力图显示大模型判定此目标时聚焦的最佳判别特征区。</p>
+                <div style="display: flex; gap: 20px; align-items: stretch; width: 60%; max-width: 800px; min-height: 350px;">
+                    <div style="flex: 1; border: 2px dashed #475569; border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer;" @click="triggerCamUpload">
+                        <span v-if="!camInputUrl" style="color: #94a3b8; font-weight: bold;">[点击挂载] 本地检验图像</span>
+                        <img v-else :src="camInputUrl" style="max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: contain;">
+                        <input type="file" ref="camFileRef" style="display: none;" @change="handleCamUpload" accept="image/*">
+                    </div>
+                    <div style="color: #475569; font-size: 40px; display: flex; align-items: center;">➔</div>
+                    <div style="flex: 1; border: 1px solid #334155; background: #0f172a; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                        <span v-if="!camResultUrl && !isCamLoading" style="color: #475569;">暂无解析特征层...</span>
+                        <div v-if="isCamLoading" class="pulse" style="color: #a21caf; font-weight: bold;">正在穿透推理神经网路...</div>
+                        <img v-if="camResultUrl && !isCamLoading" :src="camResultUrl" style="max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: contain; box-shadow: 0 0 20px rgba(220, 38, 38, 0.4);">
+                    </div>
+                </div>
+                <button v-if="camInputUrl && !isCamLoading" style="padding: 12px 32px; background: #4ade80; color: #064e3b; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;" @click="executeCam">开启热力扫描靶向探测网络</button>
+            </div>
+
+            <!-- Tab 3: PCA Cluster -->
+            <div v-show="sandboxTab === 'pca'" style="display: flex; flex-direction: column; flex: 1; gap: 24px;">
+                <div style="background: #1e293b; padding: 24px; border-radius: 12px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 style="color: #e2e8f0; font-size: 18px; font-weight: bold; margin: 0 0 8px 0;">🌐 高维特征聚类空间解析仪 (PCA)</h3>
+                        <p style="color: #94a3b8; font-size: 14px; margin: 0;">一键对项目资产包内的数百张影像进行前向传播提取全联接层向量，使用高阶降维算法 (PCA) 在二维散点图验证类的分离度。</p>
+                    </div>
+                    <button style="padding: 12px 24px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;" @click="executePCA" :disabled="isPcaLoading">
+                        <span v-if="!isPcaLoading">⚡ 全量沙盘投射演算</span>
+                        <span v-else class="pulse">🔬 正在汇聚散斑降维...</span>
+                    </button>
+                </div>
+                <div style="flex: 1; background: #1e293b; border-radius: 12px; border: 1px solid #334155; position: relative;">
+                    <div id="chart-pca" style="width: 100%; height: 100%;"></div>
                 </div>
             </div>
         </div>
@@ -177,8 +217,28 @@ export default {
             }
             @keyframes pulse-animation {
                 0% { opacity: 1; }
-                50% { opacity: 0.3; }
+                50% { opacity: 0.4; }
                 100% { opacity: 1; }
+            }
+            .sandbox-nav {
+                background: transparent;
+                border: 1px solid #334155;
+                color: #94a3b8;
+                padding: 6px 14px;
+                border-radius: 20px;
+                font-size: 13px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .sandbox-nav.active {
+                background: rgba(162, 28, 175, 0.2);
+                border-color: #a21caf;
+                color: #e879f9;
+                font-weight: bold;
+            }
+            .sandbox-nav:hover:not(.active) {
+                background: #1e293b;
+                color: #cbd5e0;
             }
         </style>
     </div>
@@ -215,14 +275,24 @@ export default {
         };
 
         const isSandboxOpen = ref(false);
+        const sandboxTab = ref('training');
         const trainingStatus = ref('idle');
         const trainConfig = ref({ epochs: 10, batch: 8, optimizer: 'auto' });
 
         let lossChart = null;
         let mapChart = null;
+        let pcaChart = null;
         let lossData = [];
         let mapData = [];
         let curWebSocket = null;
+
+        const changeSandboxTab = (tab) => {
+            sandboxTab.value = tab;
+            nextTick(() => {
+                if (tab === 'training') initCharts();
+                if (tab === 'pca' && pcaChart) pcaChart.resize();
+            });
+        };
 
         const initCharts = () => {
             if (!window.echarts) {
@@ -249,6 +319,37 @@ export default {
             mapChart.setOption({
                 ...commonOptions,
                 series: [{ name: 'mAP@50', type: 'line', data: [], smooth: true, lineStyle: { color: '#3b82f6', width: 3 }, showSymbol: false, itemStyle: { color: '#3b82f6' }, areaStyle: { color: new window.echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(59,130,246,0.3)' }, { offset: 1, color: 'rgba(59,130,246,0)' }]) } }]
+            });
+        };
+
+        const initPcaChart = (points) => {
+            if (!pcaChart) {
+                pcaChart = window.echarts.init(document.getElementById('chart-pca'));
+            }
+            // 按照 label 对 scatter 进行归组
+            const seriesData = {};
+            points.forEach(p => {
+                if (!seriesData[p.label]) seriesData[p.label] = [];
+                seriesData[p.label].push([p.x, p.y]);
+            });
+
+            const series = Object.keys(seriesData).map(label => {
+                return {
+                    name: label,
+                    type: 'scatter',
+                    symbolSize: 8,
+                    data: seriesData[label]
+                };
+            });
+
+            pcaChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: { trigger: 'item', formatter: '{a} <br/>({c})' },
+                legend: { top: 20, textStyle: { color: '#e2e8f0' } },
+                xAxis: { type: 'value', splitLine: { show: false }, axisLine: { lineStyle: { color: '#475569' } } },
+                yAxis: { type: 'value', splitLine: { lineStyle: { color: '#334155', type: 'dashed' } }, axisLine: { lineStyle: { color: '#475569' } } },
+                series: series,
+                color: ['#4ade80', '#fbbf24', '#f87171', '#c084fc']
             });
         };
 
@@ -319,6 +420,66 @@ export default {
             }
         };
 
+        const exportOnnx = async () => {
+            try {
+                const res = await axios.post(`/api/training/export_onnx/${activeProject.value.name}/job_mock`);
+                alert('🚀 ONNX 导出成功，链路：' + res.data.onnx_path);
+            } catch (e) {
+                alert('环境内暂未发现当前权重的 .pt 固态文件，仅可用于沙盘功能推演');
+            }
+        };
+
+        // Grad CAM logic
+        const camFileRef = ref(null);
+        const camFileRaw = ref(null);
+        const camInputUrl = ref('');
+        const camResultUrl = ref('');
+        const isCamLoading = ref(false);
+
+        const triggerCamUpload = () => camFileRef.value.click();
+
+        const handleCamUpload = (e) => {
+            if (e.target.files.length > 0) {
+                const f = e.target.files[0];
+                camFileRaw.value = f;
+                camInputUrl.value = URL.createObjectURL(f);
+                camResultUrl.value = '';
+            }
+        };
+
+        const executeCam = async () => {
+            if (!camFileRaw.value) return;
+            isCamLoading.value = true;
+            try {
+                const formData = new FormData();
+                formData.append('file', camFileRaw.value);
+                const res = await axios.post(`/api/analytica/grad_cam?project_name=${activeProject.value.name}`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                camResultUrl.value = res.data.cam_url;
+            } catch (err) {
+                alert('可解释探测网络未接通');
+            } finally {
+                isCamLoading.value = false;
+            }
+        };
+
+        // PCA Logic
+        const isPcaLoading = ref(false);
+        const executePCA = async () => {
+            isPcaLoading.value = true;
+            try {
+                const res = await axios.post(`/api/analytica/pca_cluster`, { project_name: activeProject.value.name });
+                if (res.data.status === 'success') {
+                    initPcaChart(res.data.points);
+                }
+            } catch (e) {
+                console.error(e);
+            } finally {
+                isPcaLoading.value = false;
+            }
+        };
+
         return {
             projects,
             activeProject,
@@ -329,11 +490,16 @@ export default {
             selectedDataset,
             selectedModel,
             isSandboxOpen,
+            sandboxTab,
+            changeSandboxTab,
             enterSandbox,
             exitSandbox,
             trainingStatus,
             trainConfig,
-            startTraining
+            startTraining,
+            exportOnnx,
+            camFileRef, camInputUrl, camResultUrl, isCamLoading, triggerCamUpload, handleCamUpload, executeCam,
+            isPcaLoading, executePCA
         };
     }
 };
