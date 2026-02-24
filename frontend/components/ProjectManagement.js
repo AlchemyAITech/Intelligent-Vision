@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 
 export default {
     name: 'ProjectManagement',
@@ -48,7 +48,7 @@ export default {
         </div>
 
         <!-- Project Detail View (Canvas/Flow) -->
-        <div v-else style="flex: 1; display: flex; flex-direction: column;">
+        <div v-else-if="!isSandboxOpen" style="flex: 1; display: flex; flex-direction: column;">
             <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0;">
                 <button style="color: #82318E; font-weight: bold; background: none; border: none; cursor: pointer; display: flex; align-items: center; font-size: 16px;" @click="activeProject = null">
                     ◀ 返回列表
@@ -100,6 +100,87 @@ export default {
                 </div>
             </div>
         </div>
+
+        <!-- Training Sandbox (Phase 4) -->
+        <div v-else style="flex: 1; display: flex; flex-direction: column; background: #0f172a; border-radius: 16px; color: white; padding: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid #334155; padding-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <button style="color: #94a3b8; font-weight: bold; background: none; border: none; cursor: pointer; font-size: 16px;" @click="exitSandbox">
+                        ◀ 返回管线
+                    </button>
+                    <h2 style="font-size: 20px; font-weight: bold; margin: 0; color: #f8fafc;">🔥 异构加速训练控制台</h2>
+                    <span style="font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #1e293b; border: 1px solid #334155; color: #94a3b8;">{{ activeProject?.name }} ⇋ {{ selectedModel }}</span>
+                </div>
+                <div>
+                    <span v-if="trainingStatus === 'idle'" style="color: #94a3b8;"><span style="color: #fbbf24;">●</span> 引擎待命 (Ready)</span>
+                    <span v-else-if="trainingStatus === 'running'" style="color: #4ade80;"><span style="color: #3b82f6;" class="pulse">●</span> 正在计算 (Training...)</span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 24px; flex: 1; overflow: hidden;">
+                <!-- 左侧: 控制板 -->
+                <div style="flex: 1; max-width: 300px; background: #1e293b; border-radius: 12px; padding: 20px; display: flex; flex-direction: column;">
+                    <h3 style="font-size: 16px; color: #e2e8f0; margin-bottom: 20px; font-weight: bold;">算力网络下发参数</h3>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 13px; color: #94a3b8; margin-bottom: 8px;">迭代轮次 (Epochs)</label>
+                        <input type="number" v-model.number="trainConfig.epochs" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 6px; box-sizing: border-box;" :disabled="trainingStatus === 'running'">
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 13px; color: #94a3b8; margin-bottom: 8px;">批次大小 (Batch Size)</label>
+                        <input type="number" v-model.number="trainConfig.batch" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 6px; box-sizing: border-box;" :disabled="trainingStatus === 'running'">
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; font-size: 13px; color: #94a3b8; margin-bottom: 8px;">优化器 (Optimizer)</label>
+                        <select v-model="trainConfig.optimizer" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 6px; box-sizing: border-box; appearance: none;" :disabled="trainingStatus === 'running'">
+                            <option value="auto">Auto (智能决断)</option>
+                            <option value="SGD">SGD (梯度下降)</option>
+                            <option value="AdamW">AdamW (自适应增强)</option>
+                        </select>
+                    </div>
+
+                    <div style="flex: 1;"></div> <!-- Spacer -->
+
+                    <button v-if="trainingStatus !== 'running'" @click="startTraining" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #a21caf, #6b21a8); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(162, 28, 175, 0.4);">
+                        🚀 下发训练指令
+                    </button>
+                    <button v-else style="width: 100%; padding: 12px; background: transparent; border: 1px dashed #4ade80; color: #4ade80; border-radius: 8px; font-weight: bold; cursor: not-allowed;">
+                        引擎轰鸣中... (计算中)
+                    </button>
+                </div>
+
+                <!-- 右侧: 图表区 -->
+                <div style="flex: 3; display: flex; flex-direction: column; gap: 20px;">
+                    <!-- Charts -->
+                    <div style="flex: 2; display: flex; gap: 20px;">
+                        <!-- Loss Chart -->
+                        <div style="flex: 1; background: #1e293b; border-radius: 12px; padding: 16px; border: 1px solid #334155; position: relative;">
+                            <h4 style="font-size: 14px; color: #cbd5e0; margin: 0 0 10px 0;">📉 实时 Box Loss 衰减</h4>
+                            <div id="chart-loss" style="width: 100%; height: 90%;"></div>
+                        </div>
+                        <!-- mAP Chart -->
+                        <div style="flex: 1; background: #1e293b; border-radius: 12px; padding: 16px; border: 1px solid #334155; position: relative;">
+                            <h4 style="font-size: 14px; color: #cbd5e0; margin: 0 0 10px 0;">🎯 验证集 mAP@50 精度</h4>
+                            <div id="chart-map" style="width: 100%; height: 90%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .pulse {
+                animation: pulse-animation 1.5s infinite;
+            }
+            @keyframes pulse-animation {
+                0% { opacity: 1; }
+                50% { opacity: 0.3; }
+                100% { opacity: 1; }
+            }
+        </style>
     </div>
     `,
     setup() {
@@ -117,6 +198,7 @@ export default {
 
         const openProject = (proj) => {
             activeProject.value = proj;
+            isSandboxOpen.value = false;
         };
 
         const createProject = () => {
@@ -132,12 +214,109 @@ export default {
             newProjectForm.value = { name: '', type: 'Classification' };
         };
 
+        const isSandboxOpen = ref(false);
+        const trainingStatus = ref('idle');
+        const trainConfig = ref({ epochs: 10, batch: 8, optimizer: 'auto' });
+
+        let lossChart = null;
+        let mapChart = null;
+        let lossData = [];
+        let mapData = [];
+        let curWebSocket = null;
+
+        const initCharts = () => {
+            if (!window.echarts) {
+                console.error("Echarts hasn't loaded.");
+                return;
+            }
+            if (!lossChart) {
+                lossChart = window.echarts.init(document.getElementById('chart-loss'));
+                mapChart = window.echarts.init(document.getElementById('chart-map'));
+            }
+
+            const commonOptions = {
+                grid: { left: 40, right: 20, top: 20, bottom: 30 },
+                xAxis: { type: 'category', data: [], axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { color: '#94a3b8' } },
+                yAxis: { type: 'value', splitLine: { lineStyle: { color: '#334155' } }, axisLabel: { color: '#94a3b8' } },
+                tooltip: { trigger: 'axis', backgroundColor: '#1e293b', borderColor: '#475569', textStyle: { color: '#f8fafc' } }
+            };
+
+            lossChart.setOption({
+                ...commonOptions,
+                series: [{ name: 'Box Loss', type: 'line', data: [], smooth: true, lineStyle: { color: '#ef4444', width: 3 }, showSymbol: false, itemStyle: { color: '#ef4444' } }]
+            });
+
+            mapChart.setOption({
+                ...commonOptions,
+                series: [{ name: 'mAP@50', type: 'line', data: [], smooth: true, lineStyle: { color: '#3b82f6', width: 3 }, showSymbol: false, itemStyle: { color: '#3b82f6' }, areaStyle: { color: new window.echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(59,130,246,0.3)' }, { offset: 1, color: 'rgba(59,130,246,0)' }]) } }]
+            });
+        };
+
         const enterSandbox = () => {
             if (!selectedDataset.value || !selectedModel.value) {
                 alert('请先完整挂载数据流与算法底座。');
                 return;
             }
-            alert('即将切换至 Phase 3/4 的训练监控沙盘...');
+            isSandboxOpen.value = true;
+            nextTick(() => {
+                initCharts();
+            });
+        };
+
+        const exitSandbox = () => {
+            isSandboxOpen.value = false;
+            // Clean logic
+            if (curWebSocket) {
+                curWebSocket.close();
+            }
+        };
+
+        const startTraining = async () => {
+            trainingStatus.value = 'running';
+            lossData = []; mapData = [];
+
+            // clear chart
+            const emptyOption = { xAxis: { data: [] }, series: [{ data: [] }] };
+            lossChart.setOption(emptyOption);
+            mapChart.setOption(emptyOption);
+
+            const jobId = "job_" + new Date().getTime();
+
+            // 1. Establish WS connection first to catch early logs
+            const wsUrl = `ws://localhost:8000/api/training/ws/${jobId}`;
+            curWebSocket = new WebSocket(wsUrl);
+
+            curWebSocket.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.epoch !== undefined) {
+                        lossData.push(data.box_loss);
+                        mapData.push(data.map50);
+                        const xAxisData = Array.from({ length: lossData.length }, (_, i) => `Ep${i + 1}`);
+
+                        lossChart.setOption({ xAxis: { data: xAxisData }, series: [{ data: lossData }] });
+                        mapChart.setOption({ xAxis: { data: xAxisData }, series: [{ data: mapData }] });
+                    }
+                } catch (e) { }
+            };
+
+            // 2. Trigger POST Request
+            try {
+                await axios.post('/api/training/start', {
+                    project_name: activeProject.value.name,
+                    job_id: jobId,
+                    yaml_path: 'dataset.yaml', // mock
+                    model_type: selectedModel.value,
+                    epochs: trainConfig.value.epochs,
+                    batch_size: trainConfig.value.batch,
+                    optimizer: trainConfig.value.optimizer
+                });
+                console.log("[Launch] Command sent tracking job", jobId);
+            } catch (err) {
+                console.error(err);
+                alert("启动失败请检查后端服务");
+                trainingStatus.value = 'idle';
+            }
         };
 
         return {
@@ -149,7 +328,12 @@ export default {
             createProject,
             selectedDataset,
             selectedModel,
-            enterSandbox
+            isSandboxOpen,
+            enterSandbox,
+            exitSandbox,
+            trainingStatus,
+            trainConfig,
+            startTraining
         };
     }
 };
