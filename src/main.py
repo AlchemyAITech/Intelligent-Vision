@@ -50,9 +50,19 @@ uploads_path = os.path.join(os.path.dirname(__file__), "..", "uploads")
 os.makedirs(uploads_path, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=uploads_path), name="uploads")
 
-# Mount frontend at root (html, js, css)
-# html(index.html) is served by root route below, but other assets need to be 
-# accessible at /...
+# Explicitly serve index.html with no-cache to ensure frontend updates propagate
+@app.get("/")
+@app.get("/index.html")
+async def serve_index():
+    return FileResponse(
+        os.path.join(frontend_path, "index.html"),
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        }
+    )
+
 app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 
 if __name__ == "__main__":
