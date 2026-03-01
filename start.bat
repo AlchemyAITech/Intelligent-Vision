@@ -30,5 +30,9 @@ echo ^>^> 🍎 Apple MPS / CUDA 加速集群已在待命状态
 echo ^>^> 控制台挂载完毕! 请在浏览器尽情访问: http://localhost:8000
 echo =========================================
 
+:: 自动清理端口 8000 遗留进程
+echo ^>^> [环境清理] 正在检测并释放 8000 端口...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr "8000" ^| findstr "LISTENING"') do taskkill /f /pid %%a >nul 2>&1
+
 :: 启动 Uvicorn，将 static 挂载到主站
 %PYTHON_CMD% -m uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload

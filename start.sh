@@ -37,5 +37,9 @@ echo -e "${PURPLE}>> 🍎 Apple MPS (Metal Performance Shaders) 异构加速集�
 echo -e "${CYAN}>> 控制台挂载完毕! 请在浏览器尽情访问: http://localhost:8000${NC}"
 echo -e "${PURPLE}=========================================${NC}"
 
+# 自动清理端口 8000 遗留进程
+echo -e "${YELLOW}>> [环境清理] 正在检测并释放 8000 端口...${NC}"
+lsof -ti :8000 | xargs kill -9 2>/dev/null || true
+
 # 启动 Uvicorn，将 static 挂载到主站
 $PYTHON_CMD -m uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload

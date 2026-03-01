@@ -36,5 +36,12 @@ Write-Host ">> 🍎 Apple MPS / CUDA 加速集群已在待命状态" -Foreground
 Write-Host ">> 控制台挂载完毕! 请在浏览器尽情访问: http://localhost:8000" -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Magenta
 
+# 自动清理端口 8000 遗留进程
+Write-Host ">> [环境清理] 正在检测并释放 8000 端口..." -ForegroundColor Yellow
+$port8000 = Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction SilentlyContinue
+if ($port8000) {
+    Stop-Process -Id $port8000.OwningProcess -Force -ErrorAction SilentlyContinue
+}
+
 # 启动 Uvicorn，将 static 挂载到主站
 & $PYTHON_CMD -m uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
