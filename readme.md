@@ -36,9 +36,15 @@ pip install -e ./sum3_repo
 项目内置了一键启动脚本，自动处理环境依赖并为您唤起后台 FastAPI 引擎和前端挂载服务：
 
 ```bash
-# 赋予执行权限并启动
+# Mac / Linux:
 chmod +x start.sh
 ./start.sh
+
+# Windows (命令提示符):
+start.bat
+
+# Windows (PowerShell):
+.\start.ps1
 ```
 
 > **💡 提示**：启动成功后，请在浏览器中访问：**[http://localhost:8000](http://localhost:8000)**
