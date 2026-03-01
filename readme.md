@@ -20,8 +20,10 @@ python -m venv .venv
 # 2. 激活虚拟环境
 # Mac / Linux:
 source .venv/bin/activate
-# Windows (命令提示符):
-# .venv\Scripts\activate
+# Windows (Command Prompt):
+# .venv\Scripts\activate.bat
+# Windows (PowerShell):
+# .venv\Scripts\Activate.ps1
 
 # 3. 安装核心依赖包
 pip install -r requirements.txt
