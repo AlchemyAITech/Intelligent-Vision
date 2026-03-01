@@ -707,34 +707,11 @@ export default {
         const onStreamFrame = async (b64) => { // ImageSource 组件传来的视频帧
             if (!b64 || subTab.value === 'tracking') return; // 如果处于追踪模式，坚决拒收流媒体帧（防闪屏）
 
-            // 在标注/识别模式下，如果尚未加载图片，允许通过流媒体首帧初始化
-            if (!imageUrl.value && b64) {
-                // ImageSource 传来的是完整 Data URL (如 "data:image/jpeg;base64,/9j/4AAQ..."), 我们需要提取纯 base64 部分给 atob
-                const b64Data = b64.includes(',') ? b64.split(',')[1] : b64;
+            // 新逻辑：只把摄像头画面当成镜子 (Mirror preview) 给用户看，绝对不私自发起 AI 识别，
+            // 直到用户在 ImageSource 组件点击了“拍照并应用”！
+            imageUrl.value = b64.includes('data:') ? b64 : "data:image/jpeg;base64," + b64.split(',').pop();
 
-                // 但为了前端能够显示，imageUrl 仍然需要 Data URL 格式
-                imageUrl.value = b64.includes('data:') ? b64 : "data:image/jpeg;base64," + b64;
-
-                // 【修复】禁止使用 fetch 加载超长 base64，避免浏览器内部网络层拦截或解析失败
-                const byteCharacters = atob(b64Data);
-                const byteNumbers = new Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }
-                const byteArray = new Uint8Array(byteNumbers);
-                const blob = new Blob([byteArray], { type: 'image/jpeg' });
-
-                uploadAndInitSession(blob);
-                return;
-            }
-
-            // 实时更新用于预览的画面
-            imageUrl.value = "data:image/jpeg;base64," + b64;
-
-            // 下方逻辑实际上只有 labeling 或 recognition 才能遇到
-            if (sessionId.value && !isLoading.value) {
-                requestPrediction();
-            }
+            // 旧版的自动识别逻辑全部移除！
         };
 
         const handleUploadFromComponent = (payload) => {
