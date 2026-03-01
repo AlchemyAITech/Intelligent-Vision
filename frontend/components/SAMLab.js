@@ -710,8 +710,16 @@ export default {
             // 在标注/识别模式下，如果尚未加载图片，允许通过流媒体首帧初始化
             if (!imageUrl.value && b64) {
                 imageUrl.value = "data:image/jpeg;base64," + b64;
-                const res = await fetch("data:image/jpeg;base64," + b64);
-                const blob = await res.blob();
+                
+                // 【修复】禁止使用 fetch 加载超长 base64，避免浏览器内部网络层拦截或解析失败
+                const byteCharacters = atob(b64);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: 'image/jpeg' });
+                
                 uploadAndInitSession(blob);
                 return;
             }
