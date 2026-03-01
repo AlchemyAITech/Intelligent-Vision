@@ -709,17 +709,21 @@ export default {
 
             // 在标注/识别模式下，如果尚未加载图片，允许通过流媒体首帧初始化
             if (!imageUrl.value && b64) {
-                imageUrl.value = "data:image/jpeg;base64," + b64;
-                
+                // ImageSource 传来的是完整 Data URL (如 "data:image/jpeg;base64,/9j/4AAQ..."), 我们需要提取纯 base64 部分给 atob
+                const b64Data = b64.includes(',') ? b64.split(',')[1] : b64;
+
+                // 但为了前端能够显示，imageUrl 仍然需要 Data URL 格式
+                imageUrl.value = b64.includes('data:') ? b64 : "data:image/jpeg;base64," + b64;
+
                 // 【修复】禁止使用 fetch 加载超长 base64，避免浏览器内部网络层拦截或解析失败
-                const byteCharacters = atob(b64);
+                const byteCharacters = atob(b64Data);
                 const byteNumbers = new Array(byteCharacters.length);
                 for (let i = 0; i < byteCharacters.length; i++) {
                     byteNumbers[i] = byteCharacters.charCodeAt(i);
                 }
                 const byteArray = new Uint8Array(byteNumbers);
                 const blob = new Blob([byteArray], { type: 'image/jpeg' });
-                
+
                 uploadAndInitSession(blob);
                 return;
             }
