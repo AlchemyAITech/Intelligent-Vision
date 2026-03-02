@@ -1,4 +1,6 @@
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+
+const API_BASE = 'http://127.0.0.1:8000/api';
 
 export default {
     name: 'DataManagement',
@@ -7,47 +9,41 @@ export default {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <h2 style="font-size: 24px; font-weight: bold; color: #82318E;">数据管理仓</h2>
             <div style="display: flex; gap: 12px;">
-                <button :class="['nav-tab', activeTab === 'overview' ? 'active-tab' : 'inactive-tab']" @click="activeTab = 'overview'">📊 数据概览</button>
+                <button :class="['nav-tab', activeTab === 'overview' ? 'active-tab' : 'inactive-tab']" @click="activeTab = 'overview'">📊 数据仓库列表</button>
                 <button :class="['nav-tab', activeTab === 'classification' ? 'active-tab' : 'inactive-tab']" @click="activeTab = 'classification'">🏷️ 分类打标仓</button>
                 <button :class="['nav-tab', activeTab === 'detection' ? 'active-tab' : 'inactive-tab']" @click="activeTab = 'detection'">🎯 框选与分割基站</button>
             </div>
         </div>
         
-        <!-- Tab: Overview -->
+        <!-- Tab: Overview (Database Control Panel) -->
         <div v-if="activeTab === 'overview'" style="flex: 1; display: flex; flex-direction: column;">
             <div style="margin-bottom: 24px; display: flex; gap: 16px;">
-                <button style="padding: 10px 20px; background: #82318E; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(130,49,142,0.2);" @click="uploadFiles">上传本地图片/文件夹 📁</button>
-                <button style="padding: 10px 20px; background: white; color: #82318E; border: 1px solid #82318E; border-radius: 8px; cursor: pointer; font-weight: bold;">刷新数据集 🔄</button>
+                <button style="padding: 10px 20px; background: #82318E; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(130,49,142,0.2);" @click="showCreateModal = true">+ 新建数据仓库</button>
+                <button style="padding: 10px 20px; background: white; color: #82318E; border: 1px solid #82318E; border-radius: 8px; cursor: pointer; font-weight: bold;" @click="fetchDatabases">刷新仓库列表 🔄</button>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; min-height: 400px;">
-                <!-- 缩略图墙 -->
-                <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #f0e6f5;">
-                    <h3 style="font-weight: bold; margin-bottom: 16px; color: #4a5568;">图片预览墙</h3>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-height: 300px; overflow-y: auto;">
-                        <div v-for="i in 12" :key="i" style="aspect-ratio: 1; background: #f7fafc; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #a0aec0; font-size: 12px; border: 1px solid #e2e8f0;">
-                            Image {{i}}
-                        </div>
+            <!-- Databases Grid -->
+            <div v-if="isLoading" style="text-align: center; margin-top: 50px; color: #718096;">正在加载数据仓库...</div>
+            <div v-else-if="databases.length === 0" style="text-align: center; margin-top: 50px; color: #a0aec0; padding: 40px; background: white; border-radius: 12px; border: 1px dashed #cbd5e0;">
+                <div style="font-size: 40px; margin-bottom: 12px;">🗂️</div>
+                <div>尚无数据仓库，请点击上方按钮新建一个。</div>
+            </div>
+            <div v-else style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; flex: 1; align-content: start;">
+                <div v-for="db in databases" :key="db.name" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; flex-direction: column; transition: transform 0.2s; cursor: pointer;" class="db-card">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                        <h3 style="font-size: 18px; font-weight: bold; color: #2d3748; margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #82318E;">📁</span> {{ db.name }}
+                        </h3>
+                        <button @click.stop="deleteDatabase(db.name)" style="background: none; border: none; color: #e53e3e; cursor: pointer; padding: 4px; border-radius: 4px;" title="删除仓库" class="delete-btn">
+                            🗑️
+                        </button>
                     </div>
-                    <div style="margin-top: 16px; font-size: 14px; color: #718096;">共计: 124 张影像</div>
-                </div>
-
-                <!-- 数据统计 -->
-                <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #f0e6f5;">
-                    <h3 style="font-weight: bold; margin-bottom: 16px; color: #4a5568;">类别分布分析</h3>
-                    <div style="display: flex; flex-direction: column; gap: 16px;">
-                        <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px;"><span>Benign (良性)</span><span>45%</span></div>
-                            <div style="width: 100%; height: 8px; background: #edf2f7; border-radius: 4px; overflow: hidden;"><div style="width: 45%; height: 100%; background: #4299e1;"></div></div>
-                        </div>
-                        <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px;"><span>Malignant (恶性)</span><span>30%</span></div>
-                            <div style="width: 100%; height: 8px; background: #edf2f7; border-radius: 4px; overflow: hidden;"><div style="width: 30%; height: 100%; background: #f56565;"></div></div>
-                        </div>
-                        <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px;"><span>Normal (正常)</span><span>25%</span></div>
-                            <div style="width: 100%; height: 8px; background: #edf2f7; border-radius: 4px; overflow: hidden;"><div style="width: 25%; height: 100%; background: #48bb78;"></div></div>
-                        </div>
+                    <p style="color: #718096; font-size: 14px; flex: 1; margin: 0 0 16px 0; min-height: 40px; line-height: 1.5;">
+                        {{ db.description || '暂无描述' }}
+                    </p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #edf2f7; padding-top: 12px; font-size: 13px; color: #a0aec0;">
+                        <span>图像总数: <strong>{{ db.image_count }}</strong> 张</span>
+                        <span style="color: #38a169; font-weight: bold;">就绪</span>
                     </div>
                 </div>
             </div>
@@ -92,6 +88,28 @@ export default {
             <button style="padding: 10px 24px; background: #edf2f7; color: #4a5568; font-weight: bold; border-radius: 8px; border: none; cursor: pointer;">正在研发载入协议...</button>
         </div>
 
+        <!-- Modal: Create Database -->
+        <div v-if="showCreateModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+            <div style="background: white; padding: 32px; border-radius: 12px; width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+                <h3 style="margin-top: 0; margin-bottom: 20px; color: #2d3748;">新建数据仓库</h3>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #4a5568;">数据仓名称 (仅限英文数字)</label>
+                    <input type="text" v-model="newDbName" placeholder="例如: Medical_Dataset_v1" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box;" />
+                </div>
+                
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #4a5568;">描述 (可选)</label>
+                    <textarea v-model="newDbDesc" placeholder="简要描述该数据集的用途或来源..." rows="3" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; resize: none;"></textarea>
+                </div>
+                
+                <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                    <button @click="showCreateModal = false" style="padding: 10px 20px; background: white; color: #4a5568; border: 1px solid #cbd5e0; border-radius: 6px; cursor: pointer; font-weight: bold;">取消</button>
+                    <button @click="createDatabase" style="padding: 10px 20px; background: #82318E; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">确认创建</button>
+                </div>
+            </div>
+        </div>
+
         <style>
             .nav-tab {
                 padding: 8px 16px;
@@ -115,6 +133,14 @@ export default {
                 background: #f7fafc;
                 color: #718096;
             }
+            .db-card:hover {
+                transform: translateY(-4px);
+                border-color: #d6bcfa !important;
+                box-shadow: 0 10px 15px -3px rgba(130,49,142, 0.1), 0 4px 6px -2px rgba(130,49,142, 0.05) !important;
+            }
+            .delete-btn:hover {
+                background: #fed7d7 !important;
+            }
         </style>
     </div>
     `,
@@ -123,8 +149,61 @@ export default {
         const selectedImages = ref([]);
         const currentTag = ref('Benign');
 
-        const uploadFiles = () => {
-            alert('功能即将开放：批量上传 / 本地挂载目录');
+        // Database Management State
+        const databases = ref([]);
+        const isLoading = ref(false);
+        const showCreateModal = ref(false);
+        const newDbName = ref('');
+        const newDbDesc = ref('');
+
+        const fetchDatabases = async () => {
+            isLoading.value = true;
+            try {
+                const res = await axios.get(`${API_BASE}/dataset/list`);
+                if (res.data.status === 'success') {
+                    databases.value = res.data.data;
+                }
+            } catch (err) {
+                console.error("加载数据集列表失败:", err);
+            } finally {
+                isLoading.value = false;
+            }
+        };
+
+        const createDatabase = async () => {
+            if (!newDbName.value.trim()) {
+                alert("请输入数据仓库名称！");
+                return;
+            }
+
+            try {
+                const res = await axios.post(`${API_BASE}/dataset/create`, {
+                    project_name: newDbName.value.trim(),
+                    description: newDbDesc.value.trim()
+                });
+                if (res.data.status === 'success') {
+                    showCreateModal.value = false;
+                    newDbName.value = '';
+                    newDbDesc.value = '';
+                    fetchDatabases(); // 刷新列表
+                }
+            } catch (err) {
+                alert(`创建失败: ${err.response?.data?.detail || err.message}`);
+            }
+        };
+
+        const deleteDatabase = async (dbName) => {
+            if (!confirm(`警告：您确定要彻底删除数据仓库 [${dbName}] 吗？此操作不可逆！`)) {
+                return;
+            }
+            try {
+                const res = await axios.delete(`${API_BASE}/dataset/${dbName}`);
+                if (res.data.status === 'success') {
+                    fetchDatabases(); // 刷新列表
+                }
+            } catch (err) {
+                alert(`删除失败: ${err.response?.data?.detail || err.message}`);
+            }
         };
 
         const toggleSelectImage = (id) => {
@@ -139,11 +218,25 @@ export default {
             selectedImages.value = [];
         };
 
+        // Load databases on mount
+        onMounted(() => {
+            fetchDatabases();
+        });
+
         return {
             activeTab,
             selectedImages,
             currentTag,
-            uploadFiles,
+
+            databases,
+            isLoading,
+            showCreateModal,
+            newDbName,
+            newDbDesc,
+
+            fetchDatabases,
+            createDatabase,
+            deleteDatabase,
             toggleSelectImage,
             applyTag
         };

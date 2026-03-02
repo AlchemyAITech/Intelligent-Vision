@@ -7,10 +7,86 @@ import yaml
 
 router = APIRouter()
 
+class CreateDatasetRequest(BaseModel):
+    project_name: str
+    description: str = ""
+
 class ClassificationTagRequest(BaseModel):
     project_name: str
     images: List[str]
     tag: str
+
+import json
+
+@router.get("/list")
+async def list_datasets():
+    """获取所有已创建的数据仓库（项目库）"""
+    projects_dir = os.path.join("data", "projects")
+    os.makedirs(projects_dir, exist_ok=True)
+    
+    datasets = []
+    for p in os.listdir(projects_dir):
+        p_path = os.path.join(projects_dir, p)
+        if os.path.isdir(p_path):
+            meta_path = os.path.join(p_path, "meta.json")
+            description = ""
+            if os.path.exists(meta_path):
+                try:
+                    with open(meta_path, "r", encoding="utf-8") as f:
+                        meta = json.load(f)
+                        description = meta.get("description", "")
+                except:
+                    pass
+            
+            # Simple count of images
+            img_count = 0
+            img_dir = os.path.join(p_path, "dataset", "images", "train")
+            if os.path.exists(img_dir):
+                img_count = len([f for f in os.listdir(img_dir) if f.endswith(('.jpg', '.jpeg', '.png'))])
+                
+            datasets.append({
+                "name": p,
+                "description": description,
+                "image_count": img_count
+            })
+            
+    return {"status": "success", "data": datasets}
+
+@router.post("/create")
+async def create_dataset(req: CreateDatasetRequest):
+    """创建新的数据仓库（项目库）"""
+    p_path = os.path.join("data", "projects", req.project_name)
+    if os.path.exists(p_path):
+        raise HTTPException(status_code=400, detail="同名数据仓库已存在")
+        
+    os.makedirs(p_path, exist_ok=True)
+    
+    # 建立深度学所需的基础结构
+    os.makedirs(os.path.join(p_path, "dataset", "images", "train"), exist_ok=True)
+    os.makedirs(os.path.join(p_path, "dataset", "labels", "train"), exist_ok=True)
+    os.makedirs(os.path.join(p_path, "dataset", "images", "val"), exist_ok=True)
+    os.makedirs(os.path.join(p_path, "dataset", "labels", "val"), exist_ok=True)
+    
+    # 保存元数据
+    meta_path = os.path.join(p_path, "meta.json")
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump({"description": req.description}, f, ensure_ascii=False)
+        
+    return {"status": "success", "message": f"成功创立数据仓: {req.project_name}"}
+
+@router.delete("/{project_name}")
+async def delete_dataset(project_name: str):
+    """危险：彻底抹除某个数据仓库"""
+    p_path = os.path.join("data", "projects", project_name)
+    if not os.path.exists(p_path):
+        raise HTTPException(status_code=404, detail="仓库不存在")
+        
+    try:
+        shutil.rmtree(p_path)
+        return {"status": "success", "message": f"已销毁数据仓: {project_name}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"删除失败: {str(e)}")
+
 
 class DetectionLabelRequest(BaseModel):
     project_name: str
