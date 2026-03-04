@@ -164,7 +164,10 @@ export default {
                         ◀ 返回管线
                     </button>
                     <h2 style="font-size: 20px; font-weight: bold; margin: 0; color: #1a202c;">🔥 异构加速训练控制台</h2>
-                    <span style="font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #edf2f7; border: 1px solid #cbd5e0; color: #4a5568;">{{ activeProject?.name }} ⇋ {{ selectedModel }}</span>
+                    <select v-model="selectedRunForTesting" style="font-size: 12px; padding: 4px 24px 4px 8px; border-radius: 4px; background: #edf2f7; border: 1px solid #cbd5e0; color: #4a5568; outline: none; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234a5568%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 8px top 50%; background-size: 8px auto; min-width: 150px;">
+                        <option value="" disabled v-if="modelRuns.length === 0">暂无训练完成的版本</option>
+                        <option v-for="run in modelRuns" :key="run.name" :value="run.name">{{ activeProject?.name }} ⇋ {{ run.name }}</option>
+                    </select>
                 </div>
                 <div style="display: flex; gap: 12px; align-items: center;">
                     <button :class="['sandbox-nav', sandboxTab === 'training' ? 'active' : '']" @click="changeSandboxTab('training')">🔥 算力大盘</button>
@@ -260,20 +263,20 @@ export default {
             </div>
 
             <!-- Tab 2: Grad CAM -->
-            <div v-show="sandboxTab === 'cam'" style="display: flex; flex-direction: column; flex: 1; align-items: center; justify-content: center; gap: 24px; background: #1e293b; border-radius: 12px; border: 1px solid #334155;">
-                <h3 style="color: #e2e8f0; font-size: 18px; font-weight: bold; margin: 0;">🔮 内网透视 / Grad-CAM 注意力焦点剥离测试</h3>
-                <p style="color: #94a3b8; font-size: 14px; max-width: 600px; text-align: center;">请挂载一张新的测试图片。我们将贯穿当前模型的深层卷积神经网络，并通过伪彩色热力图显示大模型判定此目标时聚焦的最佳判别特征区。</p>
-                <div style="display: flex; gap: 20px; align-items: stretch; width: 60%; max-width: 800px; min-height: 350px;">
-                    <div style="flex: 1; border: 2px dashed #475569; border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer;" @click="triggerCamUpload">
-                        <span v-if="!camInputUrl" style="color: #94a3b8; font-weight: bold;">[点击挂载] 本地检验图像</span>
-                        <img v-else :src="camInputUrl" style="max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: contain;">
+            <div v-show="sandboxTab === 'cam'" style="display: flex; flex-direction: column; flex: 1; align-items: center; justify-content: center; gap: 24px; background: #1e293b; border-radius: 12px; border: 1px solid #334155; padding: 32px 0;">
+                <h3 style="color: #e2e8f0; font-size: 22px; font-weight: bold; margin: 0;">🔮 内网透视 / Grad-CAM 注意力焦点剥离测试</h3>
+                <p style="color: #94a3b8; font-size: 14px; max-width: 800px; text-align: center;">请挂载一张新的测试图片。我们将贯穿当前模型的深层卷积神经网络，并通过伪彩色热力图显示大模型判定此目标时聚焦的最佳判别特征区。</p>
+                <div style="display: flex; gap: 40px; align-items: stretch; width: 85%; max-width: 1200px; min-height: 450px;">
+                    <div style="flex: 1; border: 2px dashed #475569; border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; overflow: hidden; background: rgba(15, 23, 42, 0.5);" @click="triggerCamUpload">
+                        <span v-if="!camInputUrl" style="color: #94a3b8; font-weight: bold; font-size: 16px;">[点击挂载] 本地检验图像</span>
+                        <img v-else :src="camInputUrl" style="width: 100%; height: 100%; object-fit: contain;">
                         <input type="file" ref="camFileRef" style="display: none;" @change="handleCamUpload" accept="image/*">
                     </div>
                     <div style="color: #475569; font-size: 40px; display: flex; align-items: center;">➔</div>
-                    <div style="flex: 1; border: 1px solid #334155; background: #0f172a; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <span v-if="!camResultUrl && !isCamLoading" style="color: #475569;">暂无解析特征层...</span>
-                        <div v-if="isCamLoading" class="pulse" style="color: #a21caf; font-weight: bold;">正在穿透推理神经网路...</div>
-                        <img v-if="camResultUrl && !isCamLoading" :src="camResultUrl" style="max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: contain; box-shadow: 0 0 20px rgba(220, 38, 38, 0.4);">
+                    <div style="flex: 1; border: 1px solid #334155; background: #0f172a; border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                        <span v-if="!camResultUrl && !isCamLoading" style="color: #475569; font-size: 16px;">暂无解析特征层...</span>
+                        <div v-if="isCamLoading" class="pulse" style="color: #a21caf; font-weight: bold; font-size: 16px;">正在穿透推理神经网路...</div>
+                        <img v-if="camResultUrl && !isCamLoading" :src="camResultUrl" style="width: 100%; height: 100%; object-fit: contain; box-shadow: 0 0 40px rgba(220, 38, 38, 0.3);">
                     </div>
                 </div>
                 <button v-if="camInputUrl && !isCamLoading" style="padding: 12px 32px; background: #4ade80; color: #064e3b; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;" @click="executeCam">开启热力扫描靶向探测网络</button>
@@ -291,7 +294,13 @@ export default {
                         <span v-else class="pulse">🔬 正在汇聚散斑降维...</span>
                     </button>
                 </div>
-                <div style="flex: 1; background: #1e293b; border-radius: 12px; border: 1px solid #334155; position: relative;">
+                <div style="flex: 1; background: #1e293b; border-radius: 12px; border: 1px solid #334155; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 16px; right: 24px; z-index: 10;">
+                        <select v-model="selectedPcaCategory" @change="updatePcaChartSeries" style="background: rgba(15, 23, 42, 0.8); color: #e2e8f0; border: 1px solid #475569; padding: 6px 12px; border-radius: 6px; font-size: 13px; outline: none; cursor: pointer;">
+                            <option value="ALL">显示全部类别 (ALL)</option>
+                            <option v-for="cat in pcaCategories" :key="cat" :value="cat">类别: {{ cat }}</option>
+                        </select>
+                    </div>
                     <div id="chart-pca" style="width: 100%; height: 100%;"></div>
                 </div>
             </div>
@@ -597,6 +606,9 @@ export default {
         let curWebSocket = null;
         let pollingInterval = null;
 
+        // This holds the selected run name for testing (Grad-CAM, PCA)
+        const selectedRunForTesting = ref('');
+
         const changeSandboxTab = (tab) => {
             sandboxTab.value = tab;
             nextTick(() => {
@@ -633,15 +645,36 @@ export default {
             });
         };
 
+        const pcaCategories = ref([]);
+        const selectedPcaCategory = ref('ALL');
+        let fullPcaPoints = [];
+
         const initPcaChart = (points) => {
             if (!pcaChart) {
                 pcaChart = window.echarts.init(document.getElementById('chart-pca'));
             }
-            // 按照 label 对 scatter 进行归组
+            fullPcaPoints = points;
+
             const seriesData = {};
             points.forEach(p => {
                 if (!seriesData[p.label]) seriesData[p.label] = [];
                 seriesData[p.label].push([p.x, p.y]);
+            });
+
+            pcaCategories.value = Object.keys(seriesData);
+
+            updatePcaChartSeries();
+        };
+
+        const updatePcaChartSeries = () => {
+            if (!pcaChart) return;
+            const seriesData = {};
+            // Only include the selected category or all
+            fullPcaPoints.forEach(p => {
+                if (selectedPcaCategory.value === 'ALL' || p.label === selectedPcaCategory.value) {
+                    if (!seriesData[p.label]) seriesData[p.label] = [];
+                    seriesData[p.label].push([p.x, p.y]);
+                }
             });
 
             const series = Object.keys(seriesData).map(label => {
@@ -656,12 +689,12 @@ export default {
             pcaChart.setOption({
                 backgroundColor: 'transparent',
                 tooltip: { trigger: 'item', formatter: '{a} <br/>({c})' },
-                legend: { top: 20, textStyle: { color: '#e2e8f0' } },
+                legend: { show: false }, // Hide Echarts legend as custom dropdown is used
                 xAxis: { type: 'value', splitLine: { show: false }, axisLine: { lineStyle: { color: '#475569' } } },
                 yAxis: { type: 'value', splitLine: { lineStyle: { color: '#334155', type: 'dashed' } }, axisLine: { lineStyle: { color: '#475569' } } },
                 series: series,
-                color: ['#4ade80', '#fbbf24', '#f87171', '#c084fc']
-            });
+                color: ['#4ade80', '#fbbf24', '#f87171', '#c084fc', '#60a5fa', '#f472b6', '#2dd4bf', '#a3e635']
+            }, true); // use true to merge strictly
         };
 
         const enterSandbox = async (targetTab = 'training') => {
@@ -800,11 +833,15 @@ export default {
 
         const executeCam = async () => {
             if (!camFileRaw.value) return;
+            if (!selectedRunForTesting.value) {
+                alert("请先在顶部下拉菜单选择一个已训练的模型版本");
+                return;
+            }
             isCamLoading.value = true;
             try {
                 const formData = new FormData();
                 formData.append('file', camFileRaw.value);
-                const res = await axios.post(`/api/analytica/grad_cam?project_name=${activeProject.value.name}`, formData, {
+                const res = await axios.post(`/api/analytica/grad_cam?project_name=${activeProject.value.name}&run_name=${selectedRunForTesting.value}`, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 camResultUrl.value = res.data.cam_url;
@@ -818,9 +855,14 @@ export default {
         // PCA Logic
         const isPcaLoading = ref(false);
         const executePCA = async () => {
+            if (!selectedRunForTesting.value) {
+                alert("请先在顶部下拉菜单选择一个已训练的模型版本");
+                return;
+            }
             isPcaLoading.value = true;
+            selectedPcaCategory.value = 'ALL';
             try {
-                const res = await axios.post(`/api/analytica/pca_cluster`, { project_name: activeProject.value.name });
+                const res = await axios.post(`/api/analytica/pca_cluster`, { project_name: activeProject.value.name, run_name: selectedRunForTesting.value });
                 if (res.data.status === 'success') {
                     initPcaChart(res.data.points);
                 }
@@ -869,6 +911,10 @@ export default {
                             created_at: run.created_at,
                             has_weights: run.has_weights
                         }));
+                        // Auto-select latest run if none is selected
+                        if (modelRuns.value.length > 0 && !selectedRunForTesting.value) {
+                            selectedRunForTesting.value = modelRuns.value[0].name;
+                        }
                     }
                 }
             } catch (err) {
@@ -1015,6 +1061,8 @@ export default {
             exportOnnx,
             camFileRef, camInputUrl, camResultUrl, isCamLoading, triggerCamUpload, handleCamUpload, executeCam,
             isPcaLoading, executePCA,
+            selectedRunForTesting,
+            pcaCategories, selectedPcaCategory, updatePcaChartSeries,
             isModelManagementOpen, modelRuns, selectedRunName, activeRunDetails, isRunDetailsLoading,
             openModelManagement, closeModelManagement, selectRun, deleteRun
         };
