@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import DataManagement from './DataManagement.js?v=2026.120';
+import DataManagement from './DataManagement.js?v=2026.122';
 import ProjectManagement from './ProjectManagement.js?v=2026.120';
 
 export default {

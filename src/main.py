@@ -6,7 +6,7 @@ import os
 import uvicorn
 
 # Import Routers
-from src.routers import sam, image_ops, cnn, common, yolo, face, dataset, training, analytica
+from src.routers import sam, image_ops, cnn, common, yolo, face, dataset, training, analytica, model_project
 
 app = FastAPI(title="Intelligent Vision - AI Labs")
 
@@ -29,6 +29,7 @@ app.include_router(face.router, prefix="/api/face", tags=["Face"])
 app.include_router(dataset.router, prefix="/api/dataset", tags=["Dataset"])
 app.include_router(training.router, prefix="/api/training", tags=["Training"])
 app.include_router(analytica.router, prefix="/api/analytica", tags=["Analytica"])
+app.include_router(model_project.router, prefix="/api/model_project", tags=["Model Project"])
 
 # Serve Static Files
 frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend")

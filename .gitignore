@@ -18,6 +18,7 @@ models/
 data/mnist/
 data/face_bank/Strangers/
 datasets/
+data/projects/
 
 # OS
 .DS_Store
@@ -43,3 +44,5 @@ walkthrough.md
 *.mov
 *.avi
 video/*.mp4
+
+data/tiny-imagenet-200

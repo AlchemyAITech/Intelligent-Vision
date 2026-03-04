@@ -2,7 +2,7 @@ import { createApp, ref, shallowRef, computed, watch } from 'vue';
 window.Vue = { ref, shallowRef, computed, watch }; // 供组件内部结构取用
 import HomePortal from './components/HomePortal.js?v=2026.120';
 import ExperienceModule from './components/ExperienceModule.js?v=2026.120';
-import TrainingPlatform from './components/TrainingPlatform.js?v=2026.120';
+import TrainingPlatform from './components/TrainingPlatform.js?v=2026.122';
 
 // 用于将独立模块下沉传递（为了解耦，避免全部导入打包在一个文件内）
 import SAMLab from './components/SAMLab.js?v=2026.120';

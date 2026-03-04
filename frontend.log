@@ -1,37 +1,118 @@
-::1 - - [21/Feb/2026 08:06:09] "GET / HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:06:09] "GET /app.js?v=2026 HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:06:09] "GET /components/SAMLab.js?v=2026 HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:06:09] "GET /components/ColorLab.js?v=2026 HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:06:09] "GET /components/CNNLab.js?v=2026 HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:06:09] "GET /components/ConvolutionLab.js?v=2026 HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:06:09] "GET /components/YOLOLab.js?v=2026 HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:06:09] "GET /components/FaceLab.js?v=2026 HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:06:09] "GET /components/ImageSource.js HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:06:09] code 404, message File not found
-::1 - - [21/Feb/2026 08:06:09] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [21/Feb/2026 08:07:10] "GET / HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:07:10] "GET /app.js?v=2026 HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:07:10] code 404, message File not found
-::1 - - [21/Feb/2026 08:07:10] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
-::1 - - [21/Feb/2026 08:07:10] "GET /components/SAMLab.js?v=2026 HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:07:10] "GET /components/ColorLab.js?v=2026 HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:07:10] "GET /components/ConvolutionLab.js?v=2026 HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:07:10] "GET /components/CNNLab.js?v=2026 HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:07:10] "GET /components/FaceLab.js?v=2026 HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:07:10] "GET /components/YOLOLab.js?v=2026 HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:07:10] "GET /components/ImageSource.js HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:07:10] code 404, message File not found
-::1 - - [21/Feb/2026 08:07:10] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [21/Feb/2026 08:07:24] "GET / HTTP/1.1" 304 -
-::1 - - [21/Feb/2026 08:07:24] "GET /app.js?v=2026 HTTP/1.1" 304 -
-::1 - - [21/Feb/2026 08:07:24] "GET /components/ImageSource.js HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:41:49] "GET / HTTP/1.1" 304 -
-::1 - - [21/Feb/2026 08:41:49] "GET /app.js?v=2026 HTTP/1.1" 304 -
-::1 - - [21/Feb/2026 08:41:49] "GET /components/CNNLab.js?v=2026 HTTP/1.1" 304 -
-::1 - - [21/Feb/2026 08:41:50] "GET /components/YOLOLab.js?v=2026 HTTP/1.1" 304 -
-::1 - - [21/Feb/2026 08:41:50] "GET /components/FaceLab.js?v=2026 HTTP/1.1" 304 -
-::1 - - [21/Feb/2026 08:41:50] "GET /components/ImageSource.js HTTP/1.1" 200 -
-::1 - - [21/Feb/2026 08:58:55] code 404, message File not found
-::1 - - [21/Feb/2026 08:58:55] "GET /api/cnn/ws/train HTTP/1.1" 404 -
-::1 - - [21/Feb/2026 08:59:23] code 404, message File not found
-::1 - - [21/Feb/2026 08:59:23] "GET /api/cnn/ws/train HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 00:08:39] "GET / HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 00:08:39] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 00:08:58] code 404, message File not found
+::1 - - [04/Mar/2026 00:08:58] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 00:09:25] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 00:10:11] code 404, message File not found
+::1 - - [04/Mar/2026 00:10:11] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 00:11:01] "GET / HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 00:11:01] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 00:11:27] code 404, message File not found
+::1 - - [04/Mar/2026 00:11:27] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 00:13:13] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 00:14:18] code 404, message File not found
+::1 - - [04/Mar/2026 00:14:18] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 00:15:32] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 00:15:52] code 404, message File not found
+::1 - - [04/Mar/2026 00:15:52] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 00:16:47] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 00:17:09] code 404, message File not found
+::1 - - [04/Mar/2026 00:17:09] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 00:20:05] code 404, message File not found
+::1 - - [04/Mar/2026 00:20:05] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 00:21:17] code 404, message File not found
+::1 - - [04/Mar/2026 00:21:17] "GET /api/projects HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 00:32:42] "GET / HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 00:32:42] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 00:33:56] code 404, message File not found
+::1 - - [04/Mar/2026 00:33:56] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 00:35:37] code 404, message File not found
+::1 - - [04/Mar/2026 00:35:37] "GET /api/projects HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 00:36:05] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 00:36:29] code 404, message File not found
+::1 - - [04/Mar/2026 00:36:29] "GET /api/projects HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 00:37:48] "GET /components/DataManagement.js?v=2026.122 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 00:38:25] code 404, message File not found
+::1 - - [04/Mar/2026 00:38:25] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 00:42:48] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 01:41:20] code 404, message File not found
+::1 - - [04/Mar/2026 01:41:20] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 01:41:35] code 404, message File not found
+::1 - - [04/Mar/2026 01:41:35] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 01:41:41] "GET / HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 01:41:41] "GET /components/ColorLab.js?v=2026.120 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 01:41:41] "GET /components/ExperienceModule.js?v=2026.120 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 01:41:41] "GET /components/ConvolutionLab.js?v=2026.120 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 01:41:41] "GET /components/CNNLab.js?v=2026.120 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 01:41:41] "GET /components/HomePortal.js?v=2026.120 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 01:41:41] "GET /components/YOLOLab.js?v=2026.120 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 01:41:41] "GET /components/FaceLab.js?v=2026.120 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 01:41:41] "GET /components/DataManagement.js?v=2026.122 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 01:41:41] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 01:41:41] "GET /components/ImageSource.js HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 01:41:43] code 404, message File not found
+::1 - - [04/Mar/2026 01:41:43] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 01:41:46] code 404, message File not found
+::1 - - [04/Mar/2026 01:41:46] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 01:44:39] code 404, message File not found
+::1 - - [04/Mar/2026 01:44:39] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 02:11:31] "GET / HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 02:11:31] "GET /app.js?v=2026.122 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 02:11:31] "GET /components/TrainingPlatform.js?v=2026.122 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 02:11:31] "GET /components/SAMLab.js?v=2026.120 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 02:11:31] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 02:17:53] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 02:24:22] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 02:26:57] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 02:31:53] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 02:37:37] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 02:37:53] code 404, message File not found
+::1 - - [04/Mar/2026 02:37:53] "GET /api/training/runs?project_name=%E6%BC%94%E7%A4%BA%E9%A1%B9%E7%9B%AE:%20%E7%BB%86%E8%83%9E%E5%BD%A2%E6%80%81%E5%88%86%E7%B1%BB HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 07:48:34] "GET / HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 07:48:34] "GET /app.js?v=2026.122 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 07:48:34] "GET /components/TrainingPlatform.js?v=2026.122 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 07:48:34] "GET /components/YOLOLab.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 07:48:34] "GET /components/ConvolutionLab.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 07:48:34] "GET /components/ExperienceModule.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 07:48:34] "GET /components/HomePortal.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 07:48:34] "GET /components/ColorLab.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 07:48:34] "GET /components/CNNLab.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 07:48:34] "GET /components/SAMLab.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 07:48:34] "GET /components/FaceLab.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 07:48:34] "GET /components/DataManagement.js?v=2026.122 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 07:48:34] "GET /components/ImageSource.js HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 07:48:34] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 200 -
+::1 - - [04/Mar/2026 07:48:36] code 404, message File not found
+::1 - - [04/Mar/2026 07:48:36] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 07:48:41] code 404, message File not found
+::1 - - [04/Mar/2026 07:48:41] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 07:48:44] code 404, message File not found
+::1 - - [04/Mar/2026 07:48:44] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 07:49:02] code 404, message File not found
+::1 - - [04/Mar/2026 07:49:02] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 07:49:05] code 404, message File not found
+::1 - - [04/Mar/2026 07:49:05] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 07:49:07] code 404, message File not found
+::1 - - [04/Mar/2026 07:49:07] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 07:58:47] code 404, message File not found
+::1 - - [04/Mar/2026 07:58:47] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 07:58:51] code 404, message File not found
+::1 - - [04/Mar/2026 07:58:51] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 08:58:02] "GET / HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 08:58:02] "GET /components/ProjectManagement.js?v=2026.120 HTTP/1.1" 304 -
+::1 - - [04/Mar/2026 08:58:04] code 404, message File not found
+::1 - - [04/Mar/2026 08:58:04] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 08:58:06] code 404, message File not found
+::1 - - [04/Mar/2026 08:58:06] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 08:59:09] code 501, message Unsupported method ('POST')
+::1 - - [04/Mar/2026 08:59:09] "POST /api/dataset/create HTTP/1.1" 501 -
+::1 - - [04/Mar/2026 08:59:10] code 501, message Unsupported method ('POST')
+::1 - - [04/Mar/2026 08:59:10] "POST /api/dataset/create HTTP/1.1" 501 -
+::1 - - [04/Mar/2026 08:59:12] code 501, message Unsupported method ('POST')
+::1 - - [04/Mar/2026 08:59:12] "POST /api/dataset/create HTTP/1.1" 501 -
+::1 - - [04/Mar/2026 09:06:13] code 404, message File not found
+::1 - - [04/Mar/2026 09:06:13] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 09:06:15] code 404, message File not found
+::1 - - [04/Mar/2026 09:06:15] "GET /api/dataset/list HTTP/1.1" 404 -
+::1 - - [04/Mar/2026 09:06:39] code 404, message File not found
+::1 - - [04/Mar/2026 09:06:39] "GET /api/dataset/list HTTP/1.1" 404 -
