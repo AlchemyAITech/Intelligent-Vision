@@ -19,6 +19,9 @@ class TrainClassifyRequest(BaseModel):
     imgsz: int = 640
     lr0: float = 0.01
     patience: int = 50
+    optimizer: str = "auto"
+    augment: bool = False
+    seed: int = 0
 
 class StopTrainingRequest(BaseModel):
     project_name: str
@@ -49,7 +52,7 @@ def find_image_path(project_name: str, image_name: str):
 
 import shutil
 
-def run_yolo_train(project_name: str, dataset_name: str, version: str, run_name: str, model: str, epochs: int, batch_size: int, imgsz: int, lr0: float, patience: int):
+def run_yolo_train(project_name: str, dataset_name: str, version: str, run_name: str, model: str, epochs: int, batch_size: int, imgsz: int, lr0: float, patience: int, optimizer: str, augment: bool, seed: int):
     # 1. Prepare Paths for Model Project Output
     model_proj_dir = os.path.join("data", "model_projects", project_name)
     os.makedirs(model_proj_dir, exist_ok=True)
@@ -117,6 +120,9 @@ def run_yolo_train(project_name: str, dataset_name: str, version: str, run_name:
         f"imgsz={imgsz}",
         f"lr0={lr0}",
         f"patience={patience}",
+        f"optimizer={optimizer}",
+        f"augment={augment}",
+        f"seed={seed}",
         f"project={os.path.abspath(model_proj_dir)}",
         f"name=runs/classify/{run_name}",
         "exist_ok=True"
@@ -181,7 +187,10 @@ async def start_training(req: TrainClassifyRequest, background_tasks: Background
             req.batch_size, 
             req.imgsz,
             req.lr0,
-            req.patience
+            req.patience,
+            req.optimizer,
+            req.augment,
+            req.seed
         ))
     thread.daemon = True
     thread.start()

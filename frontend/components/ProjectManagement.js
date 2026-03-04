@@ -158,18 +158,18 @@ export default {
         <!-- Training Sandbox (Phase 2, 3, 4) -->
         <div v-else style="flex: 1; display: flex; flex-direction: column; background: #ffffff; border-radius: 16px; color: #2d3748; padding: 24px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
             <!-- Header -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
-                <div style="display: flex; align-items: center; gap: 16px;">
-                    <button style="color: #4a5568; font-weight: bold; background: none; border: none; cursor: pointer; font-size: 16px; display: flex; align-items: center;" @click="exitSandbox">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; flex-wrap: nowrap; overflow: visible;">
+                <div style="display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0;">
+                    <button style="color: #4a5568; font-weight: bold; background: none; border: 1px solid #cbd5e0; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 14px; display: flex; align-items: center; transition: all 0.2s; flex-shrink: 0;" @click="exitSandbox" onmouseover="this.style.background='#edf2f7'" onmouseout="this.style.background='transparent'">
                         ◀ 返回管线
                     </button>
-                    <h2 style="font-size: 20px; font-weight: bold; margin: 0; color: #1a202c;">🔥 异构加速训练控制台</h2>
-                    <select v-model="selectedRunForTesting" style="font-size: 12px; padding: 4px 24px 4px 8px; border-radius: 4px; background: #edf2f7; border: 1px solid #cbd5e0; color: #4a5568; outline: none; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234a5568%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 8px top 50%; background-size: 8px auto; min-width: 150px;">
+                    <h2 style="font-size: 20px; font-weight: bold; margin: 0; color: #1a202c; white-space: nowrap; flex-shrink: 0; min-width: max-content;">🔥 异构加速训练控制台</h2>
+                    <select v-model="selectedRunForTesting" style="font-size: 13px; padding: 6px 28px 6px 12px; border-radius: 6px; background: #edf2f7; border: 1px solid #cbd5e0; color: #4a5568; outline: none; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234a5568%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 8px top 50%; background-size: 10px auto; flex: 1; max-width: 300px;">
                         <option value="" disabled v-if="modelRuns.length === 0">暂无训练完成的版本</option>
                         <option v-for="run in modelRuns" :key="run.name" :value="run.name">{{ activeProject?.name }} ⇋ {{ run.name }}</option>
                     </select>
                 </div>
-                <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="display: flex; gap: 12px; align-items: center; flex-shrink: 0; margin-left: 20px;">
                     <button :class="['sandbox-nav', sandboxTab === 'training' ? 'active' : '']" @click="changeSandboxTab('training')">🔥 算力大盘</button>
                     <button :class="['sandbox-nav', sandboxTab === 'cam' ? 'active' : '']" @click="changeSandboxTab('cam')">🧪 可解释性探测</button>
                     <button :class="['sandbox-nav', sandboxTab === 'pca' ? 'active' : '']" @click="changeSandboxTab('pca')">🌐 PCA 高维聚类雷达</button>
@@ -210,13 +210,27 @@ export default {
                         <input type="number" v-model.number="trainConfig.patience" style="width: 100%; background: white; border: 1px solid #cbd5e0; color: #2d3748; padding: 8px; border-radius: 6px; box-sizing: border-box;" :disabled="trainingStatus === 'running'">
                     </div>
 
-                    <div style="margin-bottom: 24px;">
+                    <div style="margin-bottom: 16px;">
                         <label style="display: block; font-size: 13px; color: #4a5568; margin-bottom: 8px;">优化器 (Optimizer)</label>
                         <select v-model="trainConfig.optimizer" style="width: 100%; background: white; border: 1px solid #cbd5e0; color: #2d3748; padding: 8px; border-radius: 6px; box-sizing: border-box; appearance: none;" :disabled="trainingStatus === 'running'">
                             <option value="auto">Auto (智能决断)</option>
                             <option value="SGD">SGD (梯度下降)</option>
                             <option value="AdamW">AdamW (自适应增强)</option>
                         </select>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 13px; color: #4a5568; margin-bottom: 6px;">数据增广 (Augment)</label>
+                            <select v-model="trainConfig.augment" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e0; font-size: 13px; outline: none;" :disabled="trainingStatus === 'running'">
+                                <option :value="false">关闭 (False)</option>
+                                <option :value="true">开启 (True)</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 13px; color: #4a5568; margin-bottom: 6px;">随机种子 (Seed)</label>
+                            <input type="number" v-model="trainConfig.seed" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e0; font-size: 13px; outline: none;" placeholder="0" :disabled="trainingStatus === 'running'"/>
+                        </div>
                     </div>
 
                     <div style="flex: 1;"></div> <!-- Spacer -->
@@ -242,14 +256,14 @@ export default {
 
                 <!-- 右侧: 图表区和日志区 -->
                 <div style="flex: 3; display: flex; flex-direction: column; gap: 20px;">
-                    <div style="flex: 2; display: flex; gap: 20px;">
-                        <div style="flex: 1; background: white; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; position: relative;">
-                            <h4 style="font-size: 14px; color: #4a5568; margin: 0 0 10px 0; font-weight: bold;">📉 实时 Box Loss / Train Loss 衰减</h4>
-                            <div id="chart-loss" style="width: 100%; height: 90%;"></div>
+                    <div style="flex: 2; display: flex; gap: 20px; min-height: 280px;">
+                        <div style="flex: 1; background: white; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; position: relative; display: flex; flex-direction: column;">
+                            <h4 style="font-size: 14px; color: #4a5568; margin: 0 0 10px 0; font-weight: bold; flex-shrink: 0;">📉 实时 Box Loss / Train Loss 衰减</h4>
+                            <div id="chart-loss" style="width: 100%; flex: 1; min-height: 200px;"></div>
                         </div>
-                        <div style="flex: 1; background: white; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; position: relative;">
-                            <h4 style="font-size: 14px; color: #4a5568; margin: 0 0 10px 0; font-weight: bold;">🎯 验证集 mAP@50 / Accuracy 精度</h4>
-                            <div id="chart-map" style="width: 100%; height: 90%;"></div>
+                        <div style="flex: 1; background: white; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; position: relative; display: flex; flex-direction: column;">
+                            <h4 style="font-size: 14px; color: #4a5568; margin: 0 0 10px 0; font-weight: bold; flex-shrink: 0;">🎯 验证集 mAP@50 / Accuracy 精度</h4>
+                            <div id="chart-map" style="width: 100%; flex: 1; min-height: 200px;"></div>
                         </div>
                     </div>
                     <!-- 日志输出窗 -->
@@ -619,8 +633,9 @@ export default {
         const isSandboxOpen = ref(false);
         const sandboxTab = ref('training');
         const trainingStatus = ref('idle');
-        const trainConfig = ref({ epochs: 10, batch: 8, imgsz: 224, optimizer: 'auto', lr0: 0.01, patience: 50 });
+        const trainConfig = ref({ epochs: 10, batch: 8, imgsz: 224, optimizer: 'auto', lr0: 0.01, patience: 50, augment: false, seed: 0 });
         const trainingLogText = ref('');
+        const currentTrainingRunName = ref('');
         const projectStats = ref({ run_count: 0 });
 
         let lossChart = null;
@@ -654,7 +669,7 @@ export default {
 
             const commonOptions = {
                 grid: { left: 40, right: 20, top: 20, bottom: 30 },
-                xAxis: { type: 'category', data: [], axisLine: { lineStyle: { color: '#cbd5e0' } }, axisLabel: { color: '#4a5568' } },
+                xAxis: { type: 'value', minInterval: 1, axisLine: { lineStyle: { color: '#cbd5e0' } }, axisLabel: { color: '#4a5568' } },
                 yAxis: { type: 'value', splitLine: { lineStyle: { color: '#e2e8f0' } }, axisLabel: { color: '#4a5568' } },
                 tooltip: { trigger: 'axis', backgroundColor: '#ffffff', borderColor: '#e2e8f0', textStyle: { color: '#2d3748' } }
             };
@@ -668,6 +683,26 @@ export default {
                 ...commonOptions,
                 series: [{ name: 'Val mAP@50 / Accuracy', type: 'line', data: [], smooth: true, lineStyle: { color: '#3182ce', width: 3 }, showSymbol: false, itemStyle: { color: '#3182ce' }, areaStyle: { color: new window.echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(49,130,206,0.3)' }, { offset: 1, color: 'rgba(49,130,206,0)' }]) } }]
             });
+
+            // Robust resize handling for ECharts in dynamic flex containers
+            setTimeout(() => {
+                if (lossChart) lossChart.resize();
+                if (mapChart) mapChart.resize();
+            }, 100);
+
+            const chartWrapperBlock = document.getElementById('chart-loss')?.parentElement;
+            if (chartWrapperBlock && window.ResizeObserver) {
+                const ro = new ResizeObserver(() => {
+                    if (lossChart) lossChart.resize();
+                    if (mapChart) mapChart.resize();
+                });
+                ro.observe(chartWrapperBlock);
+            } else {
+                window.addEventListener('resize', () => {
+                    if (lossChart) lossChart.resize();
+                    if (mapChart) mapChart.resize();
+                });
+            }
         };
 
         const pcaCategories = ref([]);
@@ -722,18 +757,8 @@ export default {
             }, true); // use true to merge strictly
         };
 
-        const enterSandbox = async (targetTab = 'training') => {
-            if (!selectedDataset.value || !selectedDataVersion.value || !selectedModel.value) return;
-            sandboxTab.value = targetTab;
-            isSandboxOpen.value = true;
-            nextTick(() => {
-                initCharts();
-            });
-
-            // 1. Ensure Model Runs list is loaded so the "Latest version" UI gets populated
-            await fetchRuns();
-
-            // 2. Fetch real historical project stats
+        const fetchProjectStats = async () => {
+            if (!activeProject.value) return;
             try {
                 const url = window.location.origin.includes('5173')
                     ? `http://127.0.0.1:8000/api/training/stats/${activeProject.value.name}`
@@ -752,6 +777,21 @@ export default {
             } catch (e) {
                 console.error("Failed to fetch project stats", e);
             }
+        };
+
+        const enterSandbox = async (targetTab = 'training') => {
+            if (!selectedDataset.value || !selectedDataVersion.value || !selectedModel.value) return;
+            sandboxTab.value = targetTab;
+            isSandboxOpen.value = true;
+            nextTick(() => {
+                initCharts();
+            });
+
+            // 1. Ensure Model Runs list is loaded so the "Latest version" UI gets populated
+            await fetchRuns();
+
+            // 2. Fetch real historical project stats
+            await fetchProjectStats();
 
             // 3. Recover active training state if the backend is actively running an epoch
             try {
@@ -775,13 +815,96 @@ export default {
             if (pollingInterval) clearInterval(pollingInterval);
         };
 
+        const startPollingTrainingLogs = (runName) => {
+            if (pollingInterval) clearInterval(pollingInterval);
+
+            // Re-init chart data if starting fresh
+            lossData = [];
+            mapData = [];
+
+            pollingInterval = setInterval(async () => {
+                try {
+                    const url = window.location.origin.includes('5173')
+                        ? `http://127.0.0.1:8000/api/training/classify/logs?project_name=${activeProject.value.name}&run_name=${runName}&lines=200`
+                        : `/api/training/classify/logs?project_name=${activeProject.value.name}&run_name=${runName}&lines=200`;
+
+                    const res = await fetch(url);
+                    if (res.ok) {
+                        const json = await res.json();
+                        trainingLogText.value = json.logs || 'Waiting for active logs...';
+
+                        // Parse YOLO logs to update charts dynamically
+                        const lines = trainingLogText.value.split('\n');
+                        let currentEpoch = 0;
+                        let latestLoss = null;
+                        let latestAcc = null;
+
+                        // Basic parser for YOLOv8 classification stdout
+                        // Example train line: "      1/10         0G      1.144         34        224" -> Epoch, Mem, Loss, Inst, Size
+                        // Example val line:   "       all         10      0.952      0.123" -> Class, Images, top1, top5
+                        lines.forEach(raw => {
+                            const rawLine = raw.replace(/\r/g, '');
+                            // Strip ANSI escape codes
+                            const line = rawLine.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
+
+                            // Match lines that have pattern: `1/10 0G 1.122 8 224` ignoring leading brackets
+                            const trainMatch = line.match(/(\d+)\/\d+\s+[\d.]+G\s+([\d.]+)/);
+                            if (trainMatch) {
+                                currentEpoch = parseInt(trainMatch[1]);
+                                latestLoss = parseFloat(trainMatch[2]);
+
+                                // Update Loss Chart Array if not exists
+                                if (!lossData.find(d => d[0] === currentEpoch)) {
+                                    lossData.push([currentEpoch, latestLoss]);
+                                } else {
+                                    // Update existing epoch with latest batch loss
+                                    const item = lossData.find(d => d[0] === currentEpoch);
+                                    if (item) item[1] = latestLoss;
+                                }
+                            }
+
+                            // A rough match for validation accuracy (top1 is usually the first float after 'all' and image count)
+                            const valMatch = line.match(/all\s+([\d.]+)\s+([\d.]+)/);
+                            if (valMatch && currentEpoch > 0) {
+                                latestAcc = parseFloat(valMatch[1]);
+                                if (!mapData.find(d => d[0] === currentEpoch)) {
+                                    mapData.push([currentEpoch, latestAcc]);
+                                }
+                            }
+                        });
+
+                        if (lossData.length > 0 && lossChart) {
+                            lossChart.setOption({
+                                series: [{ data: lossData }]
+                            });
+                        }
+                        if (mapData.length > 0 && mapChart) {
+                            mapChart.setOption({
+                                series: [{ data: mapData }]
+                            });
+                        }
+
+                        if (!json.is_running) {
+                            clearInterval(pollingInterval);
+                            trainingStatus.value = 'success';
+                            trainingLogText.value += '\\n\\n✅ 训练完毕 (Training sequence finished).';
+                            fetchRuns(); // Refresh versions dropdown
+                            fetchProjectStats(); // Refresh stats
+                        }
+                    }
+                } catch (e) {
+                    console.error("Log fetch error", e);
+                }
+            }, 2000);
+        };
+
         const startTraining = async () => {
             trainingStatus.value = 'running';
             trainingLogText.value = 'Initiating training sequence...';
             lossData = []; mapData = [];
-            const emptyOption = { xAxis: { data: [] }, series: [{ data: [] }] };
-            lossChart.setOption(emptyOption);
-            mapChart.setOption(emptyOption);
+            const emptyOption = { series: [{ data: [] }] };
+            lossChart.setOption(emptyOption, { notMerge: false });
+            mapChart.setOption(emptyOption, { notMerge: false });
 
             if (pollingInterval) clearInterval(pollingInterval);
 
@@ -798,9 +921,12 @@ export default {
                     model: selectedModel.value,
                     epochs: trainConfig.value.epochs,
                     batch_size: trainConfig.value.batch,
-                    imgsz: trainConfig.value.imgsz,
-                    lr0: trainConfig.value.lr0,
-                    patience: trainConfig.value.patience
+                    imgsz: parseInt(trainConfig.value.imgsz) || 224,
+                    lr0: parseFloat(trainConfig.value.lr0) || 0.01,
+                    patience: parseInt(trainConfig.value.patience) || 50,
+                    optimizer: trainConfig.value.optimizer,
+                    augment: trainConfig.value.augment === true,
+                    seed: parseInt(trainConfig.value.seed) || 0
                 };
 
                 const response = await fetch(url, {
@@ -818,6 +944,7 @@ export default {
                 }
 
                 console.log("[Launch] Command sent tracking job", jobId);
+                currentTrainingRunName.value = jobId;
 
                 // Start polling mechanism since backend has no websocket for classify
                 startPollingTrainingLogs(jobId);
@@ -826,6 +953,32 @@ export default {
                 console.error("Start training network error:", err);
                 showToast(`启动错误: ${err.message || '网络或接口请求错误。'}`, "error");
                 trainingStatus.value = 'idle';
+            }
+        };
+
+        const stopTraining = async () => {
+            if (!confirm('确定要强制终止当前的训练进程吗？进度将不会保留。')) return;
+            try {
+                const url = window.location.origin.includes('5173') ? 'http://127.0.0.1:8000/api/training/classify/stop' : '/api/training/classify/stop';
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_name: activeProject.value.name,
+                        run_name: currentTrainingRunName.value
+                    })
+                });
+                if (res.ok) {
+                    trainingStatus.value = 'stopped';
+                    trainingLogText.value += '\\n\\n✅ [System] Training process aborted by user.';
+                    if (pollingInterval) clearInterval(pollingInterval);
+                } else {
+                    const err = await res.json();
+                    alert(err.detail || '终止失败');
+                }
+            } catch (err) {
+                console.error('Failed to stop training:', err);
+                alert('网络或接口断开，无法发送停止指令');
             }
         };
 
@@ -1102,6 +1255,7 @@ export default {
             trainingLogText,
             projectStats,
             startTraining,
+            stopTraining,
             exportOnnx,
             camFileRef, camInputUrl, camResultUrl, camPredictedClass, camConfidence, isCamLoading, triggerCamUpload, handleCamUpload, executeCam,
             isPcaLoading, executePCA,

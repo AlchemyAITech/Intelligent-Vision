@@ -46,3 +46,7 @@ walkthrough.md
 video/*.mp4
 
 data/tiny-imagenet-200
+
+# User Requested Ignored Directories
+归档/
+data/

@@ -10,6 +10,7 @@ router = APIRouter()
 
 class PCARequest(BaseModel):
     project_name: str
+    run_name: str = ""
     sample_count: int = 200 # 模拟提取向量的数量
 
 def get_latest_best_pt(project_name: str):
@@ -28,13 +29,21 @@ def get_latest_best_pt(project_name: str):
     valid_runs.sort(key=lambda x: x[0], reverse=True)
     return valid_runs[0][1]
 
+def get_best_pt_for_run(project_name: str, run_name: str):
+    if not run_name:
+        return get_latest_best_pt(project_name)
+    pt_path = os.path.join("data", "model_projects", project_name, "runs", "classify", run_name, "weights", "best.pt")
+    if os.path.exists(pt_path):
+        return pt_path
+    return get_latest_best_pt(project_name)
+
 @router.post("/pca_cluster")
 async def perform_pca_clustering(req: PCARequest):
     """
     通过 scikit-learn 对高维影像特征进行真实 PCA 主成分降维。
     提取当前项目最新训练的 best.pt 大模型倒数第二层池化提取的 256维张量。
     """
-    pt_path = get_latest_best_pt(req.project_name)
+    pt_path = get_best_pt_for_run(req.project_name, req.run_name)
     if not pt_path:
          return {"status": "error", "message": "未找到在此工程下训练产生的可用权重 (best.pt)"}
 
@@ -105,14 +114,14 @@ async def perform_pca_clustering(req: PCARequest):
     }
 
 @router.post("/grad_cam")
-async def generate_grad_cam(project_name: str, file: UploadFile = File(...)):
+async def generate_grad_cam(project_name: str, run_name: str = "", file: UploadFile = File(...)):
     """
     接收用户上传的测试图片，加载本次实验对应模型，使用 PyTorch Hooks 抽出最终卷积层响应分布图。
     生成吻合原图结构的真实伪彩热力图 (CAM)。
     """
-    pt_path = get_latest_best_pt(project_name)
+    pt_path = get_best_pt_for_run(project_name, run_name)
     if not pt_path:
-         return {"status": "error", "message": "未找到在此工程下训练产生的可用权重 (best.pt)"}
+         return {"status": "error", "message": f"未找到在此工程和运行版本 ({run_name}) 下产生的可用权重 (best.pt)"}
 
     # Load file
     contents = await file.read()
