@@ -766,7 +766,7 @@ export default {
 
             } catch (err) {
                 console.error("Start training network error:", err);
-                setTimeout(() => alert("网络或接口请求错误。"), 100);
+                showToast(`启动错误: ${err.message || '网络或接口请求错误。'}`, "error");
                 trainingStatus.value = 'idle';
             }
         };
@@ -854,7 +854,7 @@ export default {
             selectedRunName.value = '';
         };
 
-        const fetchRuns = async () => {
+        async function fetchRuns() {
             try {
                 const url = window.location.origin.includes('5173')
                     ? `http://127.0.0.1:8000/api/training/runs?project_name=${activeProject.value.name}`
@@ -874,7 +874,7 @@ export default {
             } catch (err) {
                 console.error(err);
             }
-        };
+        }
 
         const selectRun = (name) => {
             selectedRunName.value = name;
