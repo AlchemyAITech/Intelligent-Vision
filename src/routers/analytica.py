@@ -146,6 +146,14 @@ async def generate_grad_cam(project_name: str, file: UploadFile = File(...)):
     res = model(tmp_path, verbose=False)
     handle.remove()
     
+    predicted_class = "Unknown"
+    confidence = 0.0
+    if len(res) > 0 and hasattr(res[0], 'probs') and res[0].probs is not None:
+        idx = res[0].probs.top1
+        conf = float(res[0].probs.top1conf.cpu().numpy())
+        predicted_class = res[0].names[idx]
+        confidence = conf
+    
     if len(activations) == 0:
         return {"status": "error", "message": "反向网络未收集到特征图分布"}
         
@@ -179,5 +187,7 @@ async def generate_grad_cam(project_name: str, file: UploadFile = File(...)):
 
     return {
         "status": "success",
-        "cam_url": f"/uploads/cam_results/{out_filename}"
+        "cam_url": f"/uploads/cam_results/{out_filename}",
+        "predicted_class": predicted_class,
+        "confidence": confidence
     }

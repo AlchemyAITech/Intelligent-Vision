@@ -274,6 +274,24 @@ export default {
                     </div>
                     <div style="color: #475569; font-size: 40px; display: flex; align-items: center;">➔</div>
                     <div style="flex: 1; border: 1px solid #334155; background: #0f172a; border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                        
+                        <!-- Prediction Overlay -->
+                        <div v-if="camResultUrl" style="position: absolute; top: 16px; right: 16px; display: flex; gap: 12px; z-index: 10;">
+                            <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid #dc2626; border-radius: 8px; padding: 12px 20px; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2); backdrop-filter: blur(4px);">
+                                <div style="display: flex; gap: 24px;">
+                                    <div style="display: flex; flex-direction: column; align-items: center;">
+                                        <span style="color: #94a3b8; font-size: 11px; font-weight: bold; margin-bottom: 4px;">预测类别</span>
+                                        <span style="color: #f87171; font-size: 16px; font-weight: bold;">{{ camPredictedClass }}</span>
+                                    </div>
+                                    <div style="width: 1px; background: #334155;"></div>
+                                    <div style="display: flex; flex-direction: column; align-items: center;">
+                                        <span style="color: #94a3b8; font-size: 11px; font-weight: bold; margin-bottom: 4px;">置信度</span>
+                                        <span style="color: #34d399; font-size: 16px; font-weight: bold;">{{ camConfidence }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <span v-if="!camResultUrl && !isCamLoading" style="color: #475569; font-size: 16px;">暂无解析特征层...</span>
                         <div v-if="isCamLoading" class="pulse" style="color: #a21caf; font-weight: bold; font-size: 16px;">正在穿透推理神经网路...</div>
                         <img v-if="camResultUrl && !isCamLoading" :src="camResultUrl" style="width: 100%; height: 100%; object-fit: contain; box-shadow: 0 0 40px rgba(220, 38, 38, 0.3);">
@@ -320,9 +338,9 @@ export default {
             
             <div style="flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 24px; overflow-y: auto;">
                 <!-- Runs Table -->
-                <div style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; overflow: hidden; max-height: 40%; flex-shrink: 0;">
+                <div style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; overflow-y: auto; max-height: 50%; flex-shrink: 0;">
                     <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                        <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                        <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 10;">
                             <tr>
                                 <th style="padding: 12px 16px; color: #4a5568; font-size: 14px; width: 60px;">序号</th>
                                 <th style="padding: 12px 24px; color: #4a5568; font-size: 14px;">实验批次/模型版本</th>
@@ -361,13 +379,13 @@ export default {
 
                 <!-- Selected Run Details -->
                 <div v-if="selectedRunName" style="display: flex; gap: 24px; flex: 1; min-height: 400px;">
-                    <div style="flex: 1; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; flex-direction: column;">
+                    <div style="flex: 1; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden;">
                         <h4 style="font-size: 16px; font-weight: bold; margin: 0 0 16px 0; color: #2d3748; border-bottom: 2px solid #edf2f7; padding-bottom: 8px;">超参数台账</h4>
                         <div v-if="isRunDetailsLoading" style="color: #a0aec0; text-align: center; margin-top: 20px;">正在加载参数分布...</div>
-                        <div v-else-if="activeRunDetails && activeRunDetails.args && Object.keys(activeRunDetails.args).length > 0" style="overflow-y: auto; flex: 1; font-size: 13px; color: #4a5568; line-height: 1.8;">
-                            <div v-for="(val, key) in activeRunDetails.args" :key="key" style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding: 4px 0;">
-                                <span style="font-weight: bold; color: #4a5568;">{{ key }}</span>
-                                <span style="color: #718096;">{{ val }}</span>
+                        <div v-else-if="activeRunDetails && activeRunDetails.args && Object.keys(activeRunDetails.args).length > 0" style="overflow-y: auto; flex: 1; font-size: 13px; color: #4a5568; line-height: 1.8; word-break: break-all;">
+                            <div v-for="(val, key) in activeRunDetails.args" :key="key" style="display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px dashed #e2e8f0; padding: 4px 0;">
+                                <span style="font-weight: bold; color: #4a5568; white-space: nowrap;">{{ key }}</span>
+                                <span style="color: #718096; text-align: right;">{{ val }}</span>
                             </div>
                         </div>
                         <div v-else style="color: #a0aec0; text-align: center; margin-top: 20px;">暂无参数信息</div>
@@ -818,6 +836,8 @@ export default {
         const camFileRaw = ref(null);
         const camInputUrl = ref('');
         const camResultUrl = ref('');
+        const camPredictedClass = ref('');
+        const camConfidence = ref('');
         const isCamLoading = ref(false);
 
         const triggerCamUpload = () => camFileRef.value.click();
@@ -828,6 +848,8 @@ export default {
                 camFileRaw.value = f;
                 camInputUrl.value = URL.createObjectURL(f);
                 camResultUrl.value = '';
+                camPredictedClass.value = '';
+                camConfidence.value = '';
             }
         };
 
@@ -845,8 +867,10 @@ export default {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 camResultUrl.value = res.data.cam_url;
+                camPredictedClass.value = res.data.predicted_class || '未知';
+                camConfidence.value = res.data.confidence ? (res.data.confidence * 100).toFixed(2) + '%' : '--';
             } catch (err) {
-                alert('可解释探测网络未接通');
+                alert('可解释探测网络未接通: ' + err.message);
             } finally {
                 isCamLoading.value = false;
             }
@@ -1059,7 +1083,7 @@ export default {
             trainingLogText,
             startTraining,
             exportOnnx,
-            camFileRef, camInputUrl, camResultUrl, isCamLoading, triggerCamUpload, handleCamUpload, executeCam,
+            camFileRef, camInputUrl, camResultUrl, camPredictedClass, camConfidence, isCamLoading, triggerCamUpload, handleCamUpload, executeCam,
             isPcaLoading, executePCA,
             selectedRunForTesting,
             pcaCategories, selectedPcaCategory, updatePcaChartSeries,
