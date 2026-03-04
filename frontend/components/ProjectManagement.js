@@ -426,8 +426,11 @@ export default {
 
         const fetchProjects = async () => {
             try {
-                const url = window.location.origin.includes('5173') ? 'http://127.0.0.1:8000/api/model_project/list' : '/api/model_project/list';
-                const res = await fetch(url);
+                const bust = new Date().getTime();
+                const url = window.location.origin.includes('5173')
+                    ? `http://127.0.0.1:8000/api/model_project/list?_t=${bust}`
+                    : `/api/model_project/list?_t=${bust}`;
+                const res = await fetch(url, { headers: { 'Cache-Control': 'no-cache' } });
                 if (res.ok) {
                     const json = await res.json();
                     if (json.status === 'success') {
@@ -564,19 +567,23 @@ export default {
             if (!proj) return;
             try {
                 const url = window.location.origin.includes('5173')
-                    ? `http://127.0.0.1:8000/api/model_project/${proj.name}` : `/api/model_project/${proj.name}`;
+                    ? `http://127.0.0.1:8000/api/model_project/${encodeURIComponent(proj.name)}` : `/api/model_project/${encodeURIComponent(proj.name)}`;
                 const res = await fetch(url, { method: 'DELETE' });
                 if (res.ok) {
-                    fetchProjects();
+                    await fetchProjects();
                     if (activeProject.value && activeProject.value.name === proj.name) activeProject.value = null;
-                    showDeleteModal.value = false;
                     showToast(`项目 ${proj.name} 已成功删除`);
                 } else {
                     const err = await res.json();
                     console.error('删除失败', err);
                     showToast('删除项目失败', 'error');
                 }
-            } catch (e) { console.error(e) }
+            } catch (e) {
+                console.error(e);
+            } finally {
+                showDeleteModal.value = false;
+                deleteTarget.value = null;
+            }
         };
 
         const renameProject = (proj) => {
