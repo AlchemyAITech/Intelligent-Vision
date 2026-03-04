@@ -404,37 +404,6 @@ export default {
                 </div>
             </div>
         </div>
-
-        <style>
-            .pulse {
-                animation: pulse-animation 1.5s infinite;
-            }
-            @keyframes pulse-animation {
-                0% { opacity: 1; }
-                50% { opacity: 0.4; }
-                100% { opacity: 1; }
-            }
-            .sandbox-nav {
-                background: transparent;
-                border: 1px solid #cbd5e0;
-                color: #4a5568;
-                padding: 6px 14px;
-                border-radius: 20px;
-                font-size: 13px;
-                cursor: pointer;
-                transition: all 0.2s;
-            }
-            .sandbox-nav.active {
-                background: #fdf4ff;
-                border-color: #d6bcfa;
-                color: #805ad5;
-                font-weight: bold;
-            }
-            .sandbox-nav:hover:not(.active) {
-                background: #edf2f7;
-                color: #2d3748;
-            }
-        </style>
     </div>
     `,
     setup() {
@@ -458,8 +427,24 @@ export default {
             } catch (e) { console.error(e) }
         };
 
+        const injectStyles = () => {
+            if (!document.getElementById('pm-styles')) {
+                const style = document.createElement('style');
+                style.id = 'pm-styles';
+                style.innerHTML = `
+                    .pulse { animation: pulse-animation 1.5s infinite; }
+                    @keyframes pulse-animation { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+                    .sandbox-nav { background: transparent; border: 1px solid #cbd5e0; color: #4a5568; padding: 6px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+                    .sandbox-nav.active { background: #fdf4ff; border-color: #d6bcfa; color: #805ad5; font-weight: bold; }
+                    .sandbox-nav:hover:not(.active) { background: #edf2f7; color: #2d3748; }
+                `;
+                document.head.appendChild(style);
+            }
+        };
+
         onMounted(() => {
             fetchProjects();
+            injectStyles();
         });
 
         const activeProject = ref(null);
@@ -1081,6 +1066,7 @@ export default {
             trainingStatus,
             trainConfig,
             trainingLogText,
+            projectStats,
             startTraining,
             exportOnnx,
             camFileRef, camInputUrl, camResultUrl, camPredictedClass, camConfidence, isCamLoading, triggerCamUpload, handleCamUpload, executeCam,
