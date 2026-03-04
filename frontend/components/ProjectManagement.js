@@ -403,6 +403,21 @@ export default {
                     </div>
                 </div>
             </div>
+
+            <!-- Custom Run Delete Confirmation Modal -->
+            <div v-show="showDeleteRunModal" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 200;">
+                <div style="background: white; border-radius: 12px; padding: 24px; width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                    <h3 style="margin: 0 0 16px 0; font-size: 18px; color: #e53e3e; font-weight: bold;">⚠️ 危险操作确认</h3>
+                    <p style="color: #4a5568; font-size: 14px; line-height: 1.5; margin-bottom: 24px;">
+                        确定要永久移除批次 <strong style="color: #2b6cb0;">{{ runToDelete }}</strong> 吗？<br>
+                        相关的模型权重和训练记录将被永久删除。
+                    </p>
+                    <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                        <button @click="showDeleteRunModal = false" style="padding: 8px 16px; background: white; border: 1px solid #cbd5e0; color: #4a5568; border-radius: 6px; cursor: pointer;">取消</button>
+                        <button @click="confirmDeleteRun" style="padding: 8px 16px; background: #e53e3e; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">确认移除</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     `,
@@ -935,8 +950,17 @@ export default {
             selectedRunName.value = name;
         };
 
-        const deleteRun = async (name) => {
-            if (!confirm(`确定要移除批次 ${name} 吗？这将会删除相关的模型权重和训练记录。`)) return;
+        const showDeleteRunModal = ref(false);
+        const runToDelete = ref('');
+
+        const deleteRun = (name) => {
+            runToDelete.value = name;
+            showDeleteRunModal.value = true;
+        };
+
+        const confirmDeleteRun = async () => {
+            if (!runToDelete.value) return;
+            const name = runToDelete.value;
             try {
                 const url = window.location.origin.includes('5173')
                     ? `http://127.0.0.1:8000/api/training/runs/${name}?project_name=${activeProject.value.name}`
@@ -954,6 +978,9 @@ export default {
             } catch (err) {
                 console.error(err);
                 alert('网络错误');
+            } finally {
+                showDeleteRunModal.value = false;
+                runToDelete.value = '';
             }
         };
 
@@ -1074,7 +1101,7 @@ export default {
             selectedRunForTesting,
             pcaCategories, selectedPcaCategory, updatePcaChartSeries,
             isModelManagementOpen, modelRuns, selectedRunName, activeRunDetails, isRunDetailsLoading,
-            openModelManagement, closeModelManagement, selectRun, deleteRun
+            openModelManagement, closeModelManagement, selectRun, deleteRun, showDeleteRunModal, runToDelete, confirmDeleteRun
         };
     }
 };
