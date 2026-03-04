@@ -219,8 +219,8 @@ export default {
 
                     <div style="margin-bottom: 16px; padding: 12px; background: rgba(59, 130, 246, 0.05); border: 1px dashed #93c5fd; border-radius: 8px;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                            <span style="font-size: 12px; color: #64748b;">当前模型底座版本:</span>
-                            <strong style="font-size: 12px; color: #3b82f6;">{{ selectedModel || '--' }}</strong>
+                            <span style="font-size: 12px; color: #64748b;">最新生成模型版本:</span>
+                            <strong style="font-size: 12px; color: #3b82f6;">{{ modelRuns?.[0]?.name || '--' }}</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between;">
                             <span style="font-size: 12px; color: #64748b;">历史累计训练次数:</span>
@@ -314,7 +314,8 @@ export default {
                     <table style="width: 100%; border-collapse: collapse; text-align: left;">
                         <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
                             <tr>
-                                <th style="padding: 12px 24px; color: #4a5568; font-size: 14px;">实验批次 (Run Name)</th>
+                                <th style="padding: 12px 16px; color: #4a5568; font-size: 14px; width: 60px;">序号</th>
+                                <th style="padding: 12px 24px; color: #4a5568; font-size: 14px;">实验批次/模型版本</th>
                                 <th style="padding: 12px 24px; color: #4a5568; font-size: 14px;">状态</th>
                                 <th style="padding: 12px 24px; color: #4a5568; font-size: 14px;">构建时间</th>
                                 <th style="padding: 12px 24px; color: #4a5568; font-size: 14px;">权重包</th>
@@ -322,9 +323,10 @@ export default {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="run in modelRuns" :key="run.name" 
+                            <tr v-for="(run, index) in modelRuns" :key="run.name" 
                                 @click="selectRun(run.name)"
                                 :style="{ background: selectedRunName === run.name ? '#ebf4ff' : 'white', cursor: 'pointer', borderBottom: '1px solid #e2e8f0', transition: 'background 0.2s' }">
+                                <td style="padding: 12px 16px; color: #718096; font-weight: bold;">{{ index + 1 }}</td>
                                 <td style="padding: 12px 24px; font-weight: bold; color: #2b6cb0;">{{ run.name }}</td>
                                 <td style="padding: 12px 24px;">
                                     <span v-if="run.status === 'completed'" style="font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #c6f6d5; color: #22543d; font-weight: bold;">训练完成</span>
@@ -341,7 +343,7 @@ export default {
                                 </td>
                             </tr>
                             <tr v-if="modelRuns.length === 0">
-                                <td colspan="5" style="padding: 24px; text-align: center; color: #a0aec0;">暂无历史训练批次</td>
+                                <td colspan="6" style="padding: 24px; text-align: center; color: #a0aec0;">暂无历史训练批次</td>
                             </tr>
                         </tbody>
                     </table>
@@ -435,6 +437,18 @@ export default {
         const activeProject = ref(null);
         const showCreateModal = ref(false);
         const newProjectForm = ref({ name: '', desc: '' });
+
+        // Custom Toast System
+        const toastMessage = ref('');
+        const toastType = ref('success');
+        let toastTimeout = null;
+
+        const showToast = (msg, type = 'success') => {
+            toastMessage.value = msg;
+            toastType.value = type;
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => { toastMessage.value = ''; }, 3000);
+        };
 
         // Phase 1 Dropdowns fetching pure Datasets
         const datasetList = ref([]);
@@ -754,7 +768,31 @@ export default {
                             if (logBox) logBox.scrollTop = logBox.scrollHeight;
                         }
 
-                        // 2. Fetch CSV Results to update Echarts
+                        // 2. Parse Step-level Loss directly from training log text for real-time item updates
+                        if (trainingLogText.value) {
+                            const lines = trainingLogText.value.split('\n');
+                            let stepLosses = [];
+
+                            // YOLOv8 classification log line format during epoch:
+                            // "      1/10         0G      5.328          8        224:   7%|▋         | 819/12500..."
+                            // We look for lines containing a fraction like "1/10", followed by memory, then loss.
+                            const stepRegex = /^\s*(\d+\/\d+)\s+[\d.a-zA-Z]+\s+([\d.]+)\s+/;
+
+                            lines.forEach(line => {
+                                const match = line.match(stepRegex);
+                                if (match && match[2]) {
+                                    stepLosses.push(parseFloat(match[2]));
+                                }
+                            });
+
+                            if (stepLosses.length > lossData.length) {
+                                lossData = stepLosses;
+                                const xAxisData = Array.from({ length: lossData.length }, (_, i) => `Step${i + 1}`);
+                                lossChart.setOption({ xAxis: { data: xAxisData }, series: [{ data: lossData }] });
+                            }
+                        }
+
+                        // 3. Fetch CSV Results to update Epoch-level Echarts (mAP/Accuracy)
                         const detailUrl = window.location.origin.includes('5173')
                             ? `http://127.0.0.1:8000/api/training/runs/${jobId}/details?project_name=${activeProject.value.name}`
                             : `/api/training/runs/${jobId}/details?project_name=${activeProject.value.name}`;
@@ -763,21 +801,16 @@ export default {
                         if (detailRes.ok) {
                             const det = await detailRes.json();
                             if (det.status === 'success' && det.data.results) {
-                                let tmpLoss = [];
                                 let tmpMap = [];
                                 det.data.results.forEach(r => {
                                     const acc = r['metrics/accuracy_top1'] || r['metrics/mAP50(B)'] || r.metrics_mAP50 || 0;
                                     tmpMap.push(parseFloat(acc));
-                                    const loss = r['train/loss'] || r['train/box_loss'] || r.train_box_loss || 0;
-                                    tmpLoss.push(parseFloat(loss));
                                 });
-                                // Only update if data changed
-                                if (tmpLoss.length > lossData.length) {
-                                    lossData = tmpLoss;
+                                // Only update mapData for epochs
+                                if (tmpMap.length > mapData.length) {
                                     mapData = tmpMap;
-                                    const xAxisData = Array.from({ length: lossData.length }, (_, i) => `Ep${i + 1}`);
-                                    lossChart.setOption({ xAxis: { data: xAxisData }, series: [{ data: lossData }] });
-                                    mapChart.setOption({ xAxis: { data: xAxisData }, series: [{ data: mapData }] });
+                                    const epochAxis = Array.from({ length: mapData.length }, (_, i) => `Ep${i + 1}`);
+                                    mapChart.setOption({ xAxis: { data: epochAxis }, series: [{ data: mapData }] });
                                 }
                             }
                         }
