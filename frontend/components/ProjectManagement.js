@@ -79,6 +79,7 @@ export default {
         </div>
 
         <!-- Project Detail View (Canvas/Flow) -->
+        <div v-else-if="activeProject && !isSandboxOpen && !isModelManagementOpen" style="flex: 1; display: flex; flex-direction: column;">
             <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0;">
                 <button style="color: #82318E; font-weight: bold; background: none; border: none; cursor: pointer; display: flex; align-items: center; font-size: 16px;" @click="activeProject = null">
                     ◀ 返回列表
