@@ -49,4 +49,6 @@ data/tiny-imagenet-200
 
 # User Requested Ignored Directories
 归档/
+归档.zip
 data/
+uploads/
