@@ -671,7 +671,11 @@ export default {
             nextTick(() => {
                 initCharts();
             });
-            // Fetch real historical project stats
+
+            // 1. Ensure Model Runs list is loaded so the "Latest version" UI gets populated
+            await fetchRuns();
+
+            // 2. Fetch real historical project stats
             try {
                 const url = window.location.origin.includes('5173')
                     ? `http://127.0.0.1:8000/api/training/stats/${activeProject.value.name}`
@@ -689,6 +693,22 @@ export default {
                 }
             } catch (e) {
                 console.error("Failed to fetch project stats", e);
+            }
+
+            // 3. Recover active training state if the backend is actively running an epoch
+            try {
+                const url = window.location.origin.includes('5173')
+                    ? `http://127.0.0.1:8000/api/training/classify/active?project_name=${activeProject.value.name}`
+                    : `/api/training/classify/active?project_name=${activeProject.value.name}`;
+                const res = await fetch(url);
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.is_running && json.active_run) {
+                        startPollingTrainingLogs(json.active_run);
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to query active training state", e);
             }
         };
 
@@ -742,83 +762,7 @@ export default {
                 console.log("[Launch] Command sent tracking job", jobId);
 
                 // Start polling mechanism since backend has no websocket for classify
-                pollingInterval = setInterval(async () => {
-                    try {
-                        // 1. Fetch Logs
-                        const logUrl = window.location.origin.includes('5173')
-                            ? `http://127.0.0.1:8000/api/training/classify/logs?project_name=${activeProject.value.name}&run_name=${jobId}`
-                            : `/api/training/classify/logs?project_name=${activeProject.value.name}&run_name=${jobId}`;
-
-                        const logRes = await fetch(logUrl);
-                        if (logRes.ok) {
-                            const d = await logRes.json();
-                            trainingLogText.value = d.logs || "Waiting for output...";
-
-                            // Check if training stopped
-                            if (!d.is_running && d.logs && d.logs.includes("Completed")) {
-                                trainingStatus.value = 'idle';
-                                clearInterval(pollingInterval);
-                                showToast("模型训练执行完毕！", "success");
-                            } else if (!d.is_running && d.logs && d.logs.includes("Failed")) {
-                                trainingStatus.value = 'idle';
-                                clearInterval(pollingInterval);
-                                showToast("训练线程异常终止，请参阅日志窗输出！", "error");
-                            }
-                            // Auto scroll
-                            const logBox = document.getElementById('trainingLogBox');
-                            if (logBox) logBox.scrollTop = logBox.scrollHeight;
-                        }
-
-                        // 2. Parse Step-level Loss directly from training log text for real-time item updates
-                        if (trainingLogText.value) {
-                            const lines = trainingLogText.value.split('\n');
-                            let stepLosses = [];
-
-                            // YOLOv8 classification log line format during epoch:
-                            // "      1/10         0G      5.328          8        224:   7%|▋         | 819/12500..."
-                            // We look for lines containing a fraction like "1/10", followed by memory, then loss.
-                            const stepRegex = /^\s*(\d+\/\d+)\s+[\d.a-zA-Z]+\s+([\d.]+)\s+/;
-
-                            lines.forEach(line => {
-                                const match = line.match(stepRegex);
-                                if (match && match[2]) {
-                                    stepLosses.push(parseFloat(match[2]));
-                                }
-                            });
-
-                            if (stepLosses.length > lossData.length) {
-                                lossData = stepLosses;
-                                const xAxisData = Array.from({ length: lossData.length }, (_, i) => `Step${i + 1}`);
-                                lossChart.setOption({ xAxis: { data: xAxisData }, series: [{ data: lossData }] });
-                            }
-                        }
-
-                        // 3. Fetch CSV Results to update Epoch-level Echarts (mAP/Accuracy)
-                        const detailUrl = window.location.origin.includes('5173')
-                            ? `http://127.0.0.1:8000/api/training/runs/${jobId}/details?project_name=${activeProject.value.name}`
-                            : `/api/training/runs/${jobId}/details?project_name=${activeProject.value.name}`;
-
-                        const detailRes = await fetch(detailUrl);
-                        if (detailRes.ok) {
-                            const det = await detailRes.json();
-                            if (det.status === 'success' && det.data.results) {
-                                let tmpMap = [];
-                                det.data.results.forEach(r => {
-                                    const acc = r['metrics/accuracy_top1'] || r['metrics/mAP50(B)'] || r.metrics_mAP50 || 0;
-                                    tmpMap.push(parseFloat(acc));
-                                });
-                                // Only update mapData for epochs
-                                if (tmpMap.length > mapData.length) {
-                                    mapData = tmpMap;
-                                    const epochAxis = Array.from({ length: mapData.length }, (_, i) => `Ep${i + 1}`);
-                                    mapChart.setOption({ xAxis: { data: epochAxis }, series: [{ data: mapData }] });
-                                }
-                            }
-                        }
-                    } catch (e) {
-                        console.error("Polling error", e);
-                    }
-                }, 2000);
+                startPollingTrainingLogs(jobId);
 
             } catch (err) {
                 console.error("Start training network error:", err);
