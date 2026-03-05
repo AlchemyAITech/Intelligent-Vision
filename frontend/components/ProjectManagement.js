@@ -179,7 +179,7 @@ export default {
             <!-- Tab 1: Training -->
             <div v-show="sandboxTab === 'training'" style="display: flex; gap: 24px; flex: 1; overflow: hidden;">
                 <!-- 左侧: 控制板 -->
-                <div style="flex: 1; max-width: 300px; background: #f8fafc; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; border: 1px solid #e2e8f0;">
+                <div style="flex: 1; max-width: 300px; background: #f8fafc; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; border: 1px solid #e2e8f0; overflow-y: auto;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                         <h3 style="font-size: 16px; color: #2d3748; margin: 0; font-weight: bold;">算力网络下发参数</h3>
                         <span style="color: #e53e3e; font-size: 13px; font-weight: bold;">超参数</span>
@@ -255,7 +255,7 @@ export default {
                 </div>
 
                 <!-- 右侧: 图表区和日志区 -->
-                <div style="flex: 3; display: flex; flex-direction: column; gap: 20px;">
+                <div style="flex: 3; display: flex; flex-direction: column; gap: 20px; overflow-y: auto;">
                     <div style="flex: 2; display: flex; gap: 20px; min-height: 280px;">
                         <div style="flex: 1; background: white; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; position: relative; display: flex; flex-direction: column;">
                             <h4 style="font-size: 14px; color: #4a5568; margin: 0 0 10px 0; font-weight: bold; flex-shrink: 0;">📉 实时 Box Loss / Train Loss 衰减</h4>
@@ -277,7 +277,7 @@ export default {
             </div>
 
             <!-- Tab 2: Grad CAM -->
-            <div v-show="sandboxTab === 'cam'" style="display: flex; flex-direction: column; flex: 1; align-items: center; justify-content: center; gap: 24px; background: #1e293b; border-radius: 12px; border: 1px solid #334155; padding: 32px 0;">
+            <div v-show="sandboxTab === 'cam'" style="display: flex; flex-direction: column; flex: 1; align-items: center; justify-content: center; gap: 24px; background: #1e293b; border-radius: 12px; border: 1px solid #334155; padding: 32px 0; overflow-y: auto;">
                 <h3 style="color: #e2e8f0; font-size: 22px; font-weight: bold; margin: 0;">🔮 内网透视 / Grad-CAM 注意力焦点剥离测试</h3>
                 <p style="color: #94a3b8; font-size: 14px; max-width: 800px; text-align: center;">请挂载一张新的测试图片。我们将贯穿当前模型的深层卷积神经网络，并通过伪彩色热力图显示大模型判定此目标时聚焦的最佳判别特征区。</p>
                 <div style="display: flex; gap: 40px; align-items: stretch; width: 85%; max-width: 1200px; min-height: 450px;">
@@ -315,7 +315,7 @@ export default {
             </div>
 
             <!-- Tab 3: PCA Cluster -->
-            <div v-show="sandboxTab === 'pca'" style="display: flex; flex-direction: column; flex: 1; gap: 24px;">
+            <div v-show="sandboxTab === 'pca'" style="display: flex; flex-direction: column; flex: 1; gap: 24px; overflow-y: auto;">
                 <div style="background: #1e293b; padding: 24px; border-radius: 12px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <h3 style="color: #e2e8f0; font-size: 18px; font-weight: bold; margin: 0 0 8px 0;">🌐 高维特征聚类空间解析仪 (PCA)</h3>
