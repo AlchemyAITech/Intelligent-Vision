@@ -61,8 +61,8 @@ def run_yolo_train(project_name: str, dataset_name: str, version: str, run_name:
     log_file_path = os.path.join(run_dir, "training_logs.txt")
     job_key = f"{project_name}_{run_name}"
     
-    # We write empty log file immediately so frontend can fetch
-    with open(log_file_path, "w") as f:
+    # We write empty log file immediately so frontend can fetch (UTF-8 for consistent reading)
+    with open(log_file_path, "w", encoding="utf-8") as f:
         f.write(f"Starting Training for Project: {project_name} | Dataset: {dataset_name} ({version}) | Run: {run_name}...\n")
         f.write(f"Model: {model}, Epochs: {epochs}, Batch: {batch_size}, Imgsz: {imgsz}\n")
     
@@ -90,7 +90,7 @@ def run_yolo_train(project_name: str, dataset_name: str, version: str, run_name:
             ann_map = json.load(f)
             
     copied_count = 0
-    with open(log_file_path, "a") as f:
+    with open(log_file_path, "a", encoding="utf-8") as f:
         f.write("Preprocessing dataset distribution...\n")
         
     for img_name, split in splits_map.items():
@@ -106,7 +106,7 @@ def run_yolo_train(project_name: str, dataset_name: str, version: str, run_name:
             shutil.copy2(src_path, dst_path)
             copied_count += 1
             
-    with open(log_file_path, "a") as f:
+    with open(log_file_path, "a", encoding="utf-8") as f:
         f.write(f"Dataset Data Dir: {os.path.abspath(yolo_train_dir)} (Copied {copied_count} images)\n")
         f.write("-" * 50 + "\n")
         
@@ -134,19 +134,21 @@ def run_yolo_train(project_name: str, dataset_name: str, version: str, run_name:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             bufsize=1
         )
         
         ACTIVE_TRAINING[job_key] = process
         
-        with open(log_file_path, "a") as f:
+        with open(log_file_path, "a", encoding="utf-8") as f:
             for line in iter(process.stdout.readline, ''):
                 f.write(line)
                 f.flush()
-                
+        
         process.wait()
         
-        with open(log_file_path, "a") as f:
+        with open(log_file_path, "a", encoding="utf-8") as f:
             f.write("\n" + "=" * 50 + "\n")
             if process.returncode == 0:
                 f.write("Training Completed Successfully!\n")
@@ -154,7 +156,7 @@ def run_yolo_train(project_name: str, dataset_name: str, version: str, run_name:
                 f.write(f"Training Failed with exit code {process.returncode}\n")
                 
     except Exception as e:
-        with open(log_file_path, "a") as f:
+        with open(log_file_path, "a", encoding="utf-8") as f:
             f.write(f"\nError: {str(e)}\n")
     finally:
         ACTIVE_TRAINING.pop(job_key, None)
@@ -259,18 +261,29 @@ async def get_training_logs(project_name: str, run_name: str = "run_default", li
     
     if not os.path.exists(log_file_path):
         return {"logs": "No training logs found.", "is_running": False}
-        
+
+    def _read_log_file(path: str, encodings: list[str] = None):
+        if encodings is None:
+            encodings = ["utf-8", "gbk", "gb2312", "latin-1"]
+        for enc in encodings:
+            try:
+                with open(path, "r", encoding=enc) as f:
+                    return f.readlines()
+            except (UnicodeDecodeError, LookupError):
+                continue
+        # 最后兜底：用 utf-8 并替换无法解码的字节
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            return f.readlines()
+
     try:
-        # Simple tail implementation
-        with open(log_file_path, "r", encoding="utf-8") as f:
-            content = f.readlines()
-            tail = content[-lines:] if len(content) > lines else content
-            return {
-                "logs": "".join(tail),
-                "is_running": job_key in ACTIVE_TRAINING
-            }
+        content = _read_log_file(log_file_path)
+        tail = content[-lines:] if len(content) > lines else content
+        return {
+            "logs": "".join(tail),
+            "is_running": job_key in ACTIVE_TRAINING
+        }
     except Exception as e:
-         return {"logs": f"Error reading logs: {str(e)}", "is_running": False}
+        return {"logs": f"Error reading logs: {str(e)}", "is_running": False}
 
 @router.get("/runs")
 async def list_runs(project_name: str):
