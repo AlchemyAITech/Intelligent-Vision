@@ -27,12 +27,12 @@ echo ^>^> [Deps] Checking Ultralytics, scikit-learn, FastAPI...
 
 echo ^>^> [Core] Starting FastAPI backend...
 echo ^>^> Apple MPS / CUDA ready
-echo ^>^> Open in browser: http://localhost:8000
+echo ^>^> Open in browser: http://localhost:32100
 echo =========================================
 
-:: Clean port 8000
-echo ^>^> [Env Cleanup] Checking and releasing port 8000...
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr "8000" ^| findstr "LISTENING"') do taskkill /f /pid %%a >nul 2>&1
+:: Clean port 32100
+echo ^>^> [Env Cleanup] Checking and releasing port 32100...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr "32100" ^| findstr "LISTENING"') do taskkill /f /pid %%a >nul 2>&1
 
 :: Start Uvicorn
-%PYTHON_CMD% -m uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+%PYTHON_CMD% -m uvicorn src.main:app --host 0.0.0.0 --port 32100 --reload

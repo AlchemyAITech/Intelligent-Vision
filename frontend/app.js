@@ -5,7 +5,6 @@ import ExperienceModule from './components/ExperienceModule.js?v=2026.120';
 import TrainingPlatform from './components/TrainingPlatform.js?v=2026.122';
 
 // 用于将独立模块下沉传递（为了解耦，避免全部导入打包在一个文件内）
-import SAMLab from './components/SAMLab.js?v=2026.120';
 import ColorLab from './components/ColorLab.js?v=2026.120';
 import ConvolutionLab from './components/ConvolutionLab.js?v=2026.120';
 import CNNLab from './components/CNNLab.js?v=2026.120';
@@ -13,7 +12,7 @@ import YOLOLab from './components/YOLOLab.js?v=2026.120';
 import FaceLab from './components/FaceLab.js?v=2026.120';
 
 const LAB_REGISTRY = {
-    ColorLab, ConvolutionLab, CNNLab, YOLOLab, FaceLab, SAMLab
+    ColorLab, ConvolutionLab, CNNLab, YOLOLab, FaceLab
 };
 
 const app = createApp({

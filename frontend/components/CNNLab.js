@@ -364,7 +364,7 @@ export default {
             return new Promise((resolve, reject) => {
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
                 const host = window.location.hostname;
-                const port = (window.location.port === '8080' || window.location.port === '') ? '8000' : window.location.port;
+                const port = (window.location.port === '8080' || window.location.port === '') ? '32100' : window.location.port;
                 const wsUrl = `${protocol}//${host}:${port}/api/cnn/ws/train`;
 
                 console.log("Connecting to CNN WebSocket:", wsUrl);
@@ -373,7 +373,7 @@ export default {
                 ws.value.onopen = () => { resolve(); };
                 ws.value.onerror = (e) => {
                     console.error("WS Error Details:", e);
-                    reject(new Error("连接被拒绝。请确保后端服务在 8000 端口运行，或尝试使用 127.0.0.1 访问。"));
+                    reject(new Error("连接被拒绝。请确保后端服务在 32100 端口运行，或尝试使用 127.0.0.1 访问。"));
                 };
 
                 ws.value.onmessage = (event) => {

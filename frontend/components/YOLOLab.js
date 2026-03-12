@@ -173,7 +173,7 @@ export default {
             return new Promise((resolve, reject) => {
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
                 const host = window.location.hostname;
-                const port = (window.location.port === '8080' || window.location.port === '') ? '8000' : window.location.port;
+                const port = (window.location.port === '8080' || window.location.port === '') ? '32100' : window.location.port;
                 const wsUrl = `${protocol}//${host}:${port}/api/yolo/ws/detect`;
 
                 console.log("Connecting to YOLO WebSocket:", wsUrl);

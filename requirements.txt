@@ -30,4 +30,3 @@ tqdm
 typing_extensions
 ultralytics
 uvicorn
-./sum3_repo

@@ -4,7 +4,7 @@ def run():
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
-        page.goto('http://127.0.0.1:8000/frontend/index.html')
+        page.goto('http://127.0.0.1:32100/frontend/index.html')
         page.wait_for_timeout(2000)
         
         # Click Project Management

@@ -211,7 +211,7 @@ export default {
         const startWebcam = async () => {
             try {
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw new Error("您的浏览器环境限制了摄像头访问。请尝试使用 http://localhost:8000 访问。");
+                    throw new Error("您的浏览器环境限制了摄像头访问。请尝试使用 http://localhost:32100 访问。");
                 }
                 stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 isWebcamActive.value = true;

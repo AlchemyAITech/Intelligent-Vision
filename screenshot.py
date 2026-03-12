@@ -4,7 +4,7 @@ def run():
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
-        page.goto('http://127.0.0.1:8000')
+        page.goto('http://127.0.0.1:32100')
         # Wait for potential Vue rendering
         page.wait_for_timeout(2000)
         # Click on '项目管理'

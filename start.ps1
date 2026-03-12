@@ -33,15 +33,15 @@ Write-Host ">> [Deps] Checking Ultralytics, scikit-learn, FastAPI..." -Foregroun
 
 Write-Host ">> [Core] Starting FastAPI backend..." -ForegroundColor Green
 Write-Host ">> Apple MPS / CUDA ready" -ForegroundColor Magenta
-Write-Host ">> Open in browser: http://localhost:8000" -ForegroundColor Cyan
+Write-Host ">> Open in browser: http://localhost:32100" -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Magenta
 
-# Auto cleanup process on port 8000
-Write-Host ">> [Env Cleanup] Checking and releasing port 8000..." -ForegroundColor Yellow
-$port8000 = Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction SilentlyContinue
-if ($port8000) {
-    Stop-Process -Id $port8000.OwningProcess -Force -ErrorAction SilentlyContinue
+# Auto cleanup process on port 32100
+Write-Host ">> [Env Cleanup] Checking and releasing port 32100..." -ForegroundColor Yellow
+$port32100 = Get-NetTCPConnection -LocalPort 32100 -State Listen -ErrorAction SilentlyContinue
+if ($port32100) {
+    Stop-Process -Id $port32100.OwningProcess -Force -ErrorAction SilentlyContinue
 }
 
 # 启动 Uvicorn，将 static 挂载到主站
-& $PYTHON_CMD -m uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+& $PYTHON_CMD -m uvicorn src.main:app --host 0.0.0.0 --port 32100 --reload

@@ -442,7 +442,7 @@ export default {
             try {
                 const bust = new Date().getTime();
                 const url = window.location.origin.includes('5173')
-                    ? `http://127.0.0.1:8000/api/model_project/list?_t=${bust}`
+                    ? `http://127.0.0.1:32100/api/model_project/list?_t=${bust}`
                     : `/api/model_project/list?_t=${bust}`;
                 const res = await fetch(url, { headers: { 'Cache-Control': 'no-cache' } });
                 if (res.ok) {
@@ -499,7 +499,7 @@ export default {
         const datasetList = ref([]);
         const fetchDatasets = async () => {
             try {
-                const url = window.location.origin.includes('5173') ? 'http://127.0.0.1:8000/api/dataset/list' : '/api/dataset/list';
+                const url = window.location.origin.includes('5173') ? 'http://127.0.0.1:32100/api/dataset/list' : '/api/dataset/list';
                 const res = await fetch(url);
                 if (res.ok) {
                     const json = await res.json();
@@ -521,7 +521,7 @@ export default {
             if (!newVal) return;
             try {
                 const url = window.location.origin.includes('5173')
-                    ? `http://127.0.0.1:8000/api/dataset/${newVal}/versions`
+                    ? `http://127.0.0.1:32100/api/dataset/${newVal}/versions`
                     : `/api/dataset/${newVal}/versions`;
                 const res = await fetch(url);
                 if (res.ok) {
@@ -548,7 +548,7 @@ export default {
         const createProject = async () => {
             if (!newProjectForm.value.name.trim()) return;
             try {
-                const url = window.location.origin.includes('5173') ? 'http://127.0.0.1:8000/api/model_project/create' : '/api/model_project/create';
+                const url = window.location.origin.includes('5173') ? 'http://127.0.0.1:32100/api/model_project/create' : '/api/model_project/create';
                 const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -581,7 +581,7 @@ export default {
             if (!proj) return;
             try {
                 const url = window.location.origin.includes('5173')
-                    ? `http://127.0.0.1:8000/api/model_project/${encodeURIComponent(proj.name)}` : `/api/model_project/${encodeURIComponent(proj.name)}`;
+                    ? `http://127.0.0.1:32100/api/model_project/${encodeURIComponent(proj.name)}` : `/api/model_project/${encodeURIComponent(proj.name)}`;
                 const res = await fetch(url, { method: 'DELETE' });
                 if (res.ok) {
                     await fetchProjects();
@@ -614,7 +614,7 @@ export default {
             }
             try {
                 const url = window.location.origin.includes('5173')
-                    ? `http://127.0.0.1:8000/api/model_project/rename/${proj.name}` : `/api/model_project/rename/${proj.name}`;
+                    ? `http://127.0.0.1:32100/api/model_project/rename/${proj.name}` : `/api/model_project/rename/${proj.name}`;
                 const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -761,7 +761,7 @@ export default {
             if (!activeProject.value) return;
             try {
                 const url = window.location.origin.includes('5173')
-                    ? `http://127.0.0.1:8000/api/training/stats/${activeProject.value.name}`
+                    ? `http://127.0.0.1:32100/api/training/stats/${activeProject.value.name}`
                     : `/api/training/stats/${activeProject.value.name}`;
                 const res = await fetch(url);
                 if (res.ok) {
@@ -796,7 +796,7 @@ export default {
             // 3. Recover active training state if the backend is actively running an epoch
             try {
                 const url = window.location.origin.includes('5173')
-                    ? `http://127.0.0.1:8000/api/training/classify/active?project_name=${activeProject.value.name}`
+                    ? `http://127.0.0.1:32100/api/training/classify/active?project_name=${activeProject.value.name}`
                     : `/api/training/classify/active?project_name=${activeProject.value.name}`;
                 const res = await fetch(url);
                 if (res.ok) {
@@ -825,7 +825,7 @@ export default {
             pollingInterval = setInterval(async () => {
                 try {
                     const url = window.location.origin.includes('5173')
-                        ? `http://127.0.0.1:8000/api/training/classify/logs?project_name=${activeProject.value.name}&run_name=${runName}&lines=200`
+                        ? `http://127.0.0.1:32100/api/training/classify/logs?project_name=${activeProject.value.name}&run_name=${runName}&lines=200`
                         : `/api/training/classify/logs?project_name=${activeProject.value.name}&run_name=${runName}&lines=200`;
 
                     const res = await fetch(url);
@@ -912,7 +912,7 @@ export default {
 
             // POST Request to correct endpoint
             try {
-                const url = window.location.origin.includes('5173') ? 'http://127.0.0.1:8000/api/training/classify/start' : '/api/training/classify/start';
+                const url = window.location.origin.includes('5173') ? 'http://127.0.0.1:32100/api/training/classify/start' : '/api/training/classify/start';
                 const payload = {
                     project_name: activeProject.value.name,
                     dataset_name: selectedDataset.value,
@@ -959,7 +959,7 @@ export default {
         const stopTraining = async () => {
             if (!confirm('确定要强制终止当前的训练进程吗？进度将不会保留。')) return;
             try {
-                const url = window.location.origin.includes('5173') ? 'http://127.0.0.1:8000/api/training/classify/stop' : '/api/training/classify/stop';
+                const url = window.location.origin.includes('5173') ? 'http://127.0.0.1:32100/api/training/classify/stop' : '/api/training/classify/stop';
                 const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1083,7 +1083,7 @@ export default {
         async function fetchRuns() {
             try {
                 const url = window.location.origin.includes('5173')
-                    ? `http://127.0.0.1:8000/api/training/runs?project_name=${activeProject.value.name}`
+                    ? `http://127.0.0.1:32100/api/training/runs?project_name=${activeProject.value.name}`
                     : `/api/training/runs?project_name=${activeProject.value.name}`;
                 const res = await fetch(url);
                 if (res.ok) {
@@ -1123,7 +1123,7 @@ export default {
             const name = runToDelete.value;
             try {
                 const url = window.location.origin.includes('5173')
-                    ? `http://127.0.0.1:8000/api/training/runs/${name}?project_name=${activeProject.value.name}`
+                    ? `http://127.0.0.1:32100/api/training/runs/${name}?project_name=${activeProject.value.name}`
                     : `/api/training/runs/${name}?project_name=${activeProject.value.name}`;
                 const res = await fetch(url, { method: 'DELETE' });
                 if (res.ok) {
@@ -1149,7 +1149,7 @@ export default {
             isRunDetailsLoading.value = true;
             try {
                 const url = window.location.origin.includes('5173')
-                    ? `http://127.0.0.1:8000/api/training/runs/${runName}/details?project_name=${activeProject.value.name}`
+                    ? `http://127.0.0.1:32100/api/training/runs/${runName}/details?project_name=${activeProject.value.name}`
                     : `/api/training/runs/${runName}/details?project_name=${activeProject.value.name}`;
                 const res = await fetch(url);
                 if (res.ok) {

@@ -6,7 +6,7 @@ import os
 import uvicorn
 
 # Import Routers
-from src.routers import sam, image_ops, cnn, common, yolo, face, dataset, training, analytica, model_project
+from src.routers import image_ops, cnn, common, yolo, face, dataset, training, analytica, model_project
 
 app = FastAPI(title="Intelligent Vision - AI Labs")
 
@@ -20,7 +20,6 @@ app.add_middleware(
 )
 
 # API Routes
-app.include_router(sam.router, prefix="/api/sam", tags=["SAM"])
 app.include_router(image_ops.router, prefix="/api/image", tags=["ImageOps"])
 app.include_router(cnn.router, prefix="/api/cnn", tags=["CNN"])
 app.include_router(common.router, prefix="/api/common", tags=["Common"])
@@ -67,4 +66,4 @@ async def serve_index():
 app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 
 if __name__ == "__main__":
-    uvicorn.run("src.main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("src.main:app", host="0.0.0.0", port=32100, reload=True)

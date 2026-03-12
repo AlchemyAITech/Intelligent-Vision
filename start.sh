@@ -34,12 +34,12 @@ $PYTHON_CMD -m pip install -q fastapi "uvicorn[standard]" python-multipart webso
 
 echo -e "${GREEN}>> [核心起飞] 正在唤醒 FastAPI 异步后端引擎...${NC}"
 echo -e "${PURPLE}>> 🍎 Apple MPS (Metal Performance Shaders) 异构加速集群已在待命状态${NC}"
-echo -e "${CYAN}>> 控制台挂载完毕! 请在浏览器尽情访问: http://localhost:8000${NC}"
+echo -e "${CYAN}>> 控制台挂载完毕! 请在浏览器尽情访问: http://localhost:32100${NC}"
 echo -e "${PURPLE}=========================================${NC}"
 
-# 自动清理端口 8000 遗留进程
-echo -e "${YELLOW}>> [环境清理] 正在检测并释放 8000 端口...${NC}"
-lsof -ti :8000 | xargs kill -9 2>/dev/null || true
+# 自动清理端口 32100 遗留进程
+echo -e "${YELLOW}>> [环境清理] 正在检测并释放 32100 端口...${NC}"
+lsof -ti :32100 | xargs kill -9 2>/dev/null || true
 
 # 启动 Uvicorn，将 static 挂载到主站
-$PYTHON_CMD -m uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+$PYTHON_CMD -m uvicorn src.main:app --host 0.0.0.0 --port 32100 --reload

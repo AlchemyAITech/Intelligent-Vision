@@ -1,6 +1,6 @@
 import { ref, onMounted, watch, computed } from 'vue';
 
-const API_BASE = 'http://127.0.0.1:8000/api';
+const API_BASE = 'http://127.0.0.1:32100/api';
 
 export default {
     name: 'DataManagement',
